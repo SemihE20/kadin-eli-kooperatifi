@@ -151,3 +151,30 @@ export function getPrimaryImage(
   const primary = images.find((img) => img.is_primary);
   return primary?.image_url || images[0].image_url;
 }
+
+// ==========================================
+// Seasonality — parses free-text ranges like "Şubat - Nisan" and
+// checks whether the current month falls inside them (wraps year-end).
+// ==========================================
+const TR_MONTHS = [
+  "ocak", "şubat", "mart", "nisan", "mayıs", "haziran",
+  "temmuz", "ağustos", "eylül", "ekim", "kasım", "aralık",
+];
+
+export function parseSeasonMonths(seasonInfo: string | null): [number, number] | null {
+  if (!seasonInfo) return null;
+  const parts = seasonInfo.toLowerCase().split("-").map((p) => p.trim());
+  if (parts.length !== 2) return null;
+  const [startIdx, endIdx] = parts.map((p) => TR_MONTHS.findIndex((m) => p.includes(m)));
+  if (startIdx === -1 || endIdx === -1) return null;
+  return [startIdx, endIdx];
+}
+
+export function isInSeasonNow(seasonInfo: string | null): boolean {
+  const range = parseSeasonMonths(seasonInfo);
+  if (!range) return false;
+  const [start, end] = range;
+  const currentMonth = new Date().getMonth();
+  if (start <= end) return currentMonth >= start && currentMonth <= end;
+  return currentMonth >= start || currentMonth <= end;
+}

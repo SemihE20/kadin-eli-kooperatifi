@@ -67,7 +67,7 @@ export type OrderStatus =
   | "teslim_edildi"
   | "iptal";
 
-export type PaymentMethod = "havale_eft" | "kapida_odeme";
+export type PaymentMethod = "havale_eft" | "kapida_odeme" | "kredi_karti";
 
 export interface ShippingAddress {
   full_name: string;
@@ -88,6 +88,7 @@ export interface Order {
   total: number;
   shipping_address: ShippingAddress;
   payment_method: PaymentMethod;
+  payment_reference: string | null;
   notes: string | null;
   created_at: string;
   updated_at: string;

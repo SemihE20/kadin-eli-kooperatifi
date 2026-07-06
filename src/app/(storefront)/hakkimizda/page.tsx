@@ -28,7 +28,7 @@ export default function AboutPage() {
             </div>
             <h2 className="font-heading text-2xl font-bold text-foreground mb-4">Hikayemiz</h2>
             <p className="text-sm text-muted leading-relaxed max-w-2xl mx-auto mb-4">
-              Gözler Kadıneli Kooperatifi, Bursa&apos;nın Mudanya ilçesine bağlı Gözler Mahallesi&apos;nde 
+              Gözler Kadıneli Kooperatifi, Denizli&apos;nin Pamukkale ilçesine bağlı Gözler Mahallesi&apos;nde
               kadınların el emeklerini değerlendirmek, ekonomik bağımsızlıklarını güçlendirmek ve 
               doğal üretimi desteklemek amacıyla kurulmuştur.
             </p>

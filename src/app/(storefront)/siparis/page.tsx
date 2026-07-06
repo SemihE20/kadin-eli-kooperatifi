@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import PageHeader from "@/components/layout/PageHeader";
 import { useCartStore } from "@/store/cart";
-import { formatPrice, calculateShipping, generateOrderNumber, generateOrderWhatsAppMessage } from "@/lib/utils";
+import { formatPrice, calculateShipping, generateOrderWhatsAppMessage } from "@/lib/utils";
 import { PAYMENT_METHODS, BANK_INFO, WHATSAPP_BASE_URL, WHATSAPP_NUMBER } from "@/lib/constants";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
@@ -16,7 +16,7 @@ export default function OrderPage() {
   const shipping = calculateShipping(subtotal);
   const total = subtotal + shipping;
 
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("havale_eft");
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("kredi_karti");
   const [formData, setFormData] = useState({
     fullName: "",
     phone: "",
@@ -26,18 +26,94 @@ export default function OrderPage() {
     postalCode: "",
     notes: "",
   });
+  const [cardForm, setCardForm] = useState({
+    email: "",
+    cardHolderName: "",
+    cardNumber: "",
+    expireMonth: "",
+    expireYear: "",
+    cvc: "",
+  });
   const [orderCompleted, setOrderCompleted] = useState(false);
   const [orderNumber, setOrderNumber] = useState("");
+  const [paymentReference, setPaymentReference] = useState<string | null>(null);
+  const [paymentProvider, setPaymentProvider] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  function formatCardNumber(value: string) {
+    const digits = value.replace(/\D/g, "").slice(0, 16);
+    return digits.replace(/(.{4})/g, "$1 ").trim();
+  }
+
+  const handleCardChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    if (name === "cardNumber") {
+      setCardForm({ ...cardForm, cardNumber: formatCardNumber(value) });
+    } else if (name === "expireMonth" || name === "expireYear" || name === "cvc") {
+      setCardForm({ ...cardForm, [name]: value.replace(/\D/g, "").slice(0, name === "cvc" ? 4 : 2) });
+    } else {
+      setCardForm({ ...cardForm, [name]: value });
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const newOrderNumber = generateOrderNumber();
-    setOrderNumber(newOrderNumber);
-    setOrderCompleted(true);
+    setSubmitError(null);
+    setSubmitting(true);
+
+    try {
+      const res = await fetch("/api/checkout/pay", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          items: items.map((item) => ({ productId: item.product.id, quantity: item.quantity })),
+          shipping: {
+            full_name: formData.fullName,
+            phone: formData.phone,
+            city: formData.city,
+            district: formData.district,
+            address: formData.address,
+            postal_code: formData.postalCode || undefined,
+          },
+          paymentMethod,
+          notes: formData.notes || undefined,
+          email: paymentMethod === "kredi_karti" ? cardForm.email : undefined,
+          card:
+            paymentMethod === "kredi_karti"
+              ? {
+                  cardHolderName: cardForm.cardHolderName,
+                  cardNumber: cardForm.cardNumber,
+                  expireMonth: cardForm.expireMonth,
+                  expireYear: cardForm.expireYear,
+                  cvc: cardForm.cvc,
+                }
+              : undefined,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setSubmitError(data.error || "Sipariş oluşturulamadı. Lütfen tekrar deneyin.");
+        setSubmitting(false);
+        return;
+      }
+
+      setOrderNumber(data.orderNumber);
+      setPaymentReference(data.paymentReference ?? null);
+      setPaymentProvider(data.provider ?? null);
+      setOrderCompleted(true);
+      clearCart();
+    } catch {
+      setSubmitError("Bağlantı hatası. Lütfen tekrar deneyin.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleWhatsAppOrder = () => {
@@ -107,6 +183,20 @@ export default function OrderPage() {
                   <p><strong>Hesap Sahibi:</strong> {BANK_INFO.accountHolder}</p>
                   <p><strong>IBAN:</strong> {BANK_INFO.iban}</p>
                   <p className="mt-2 text-amber-600">Açıklama kısmına sipariş numaranızı yazmayı unutmayın.</p>
+                </div>
+              </div>
+            )}
+
+            {paymentMethod === "kredi_karti" && (
+              <div className="bg-green-50 border border-green-200 rounded-xl p-4 mb-6 text-left">
+                <h3 className="font-heading text-sm font-semibold text-green-800 mb-2">✅ Ödeme Onaylandı</h3>
+                <div className="space-y-1 text-xs text-green-700">
+                  {paymentReference && <p><strong>İşlem Referansı:</strong> {paymentReference}</p>}
+                  {paymentProvider === "mock" && (
+                    <p className="mt-2 text-green-600">
+                      Test modu: gerçek bir tahsilat yapılmadı. Gerçek ödeme için iyzico API anahtarları tanımlanmalı.
+                    </p>
+                  )}
                 </div>
               </div>
             )}
@@ -206,6 +296,70 @@ export default function OrderPage() {
                     </label>
                   ))}
                 </div>
+
+                {paymentMethod === "kredi_karti" && (
+                  <div className="mt-4 pt-4 border-t border-border space-y-4">
+                    <Input
+                      label="E-posta"
+                      name="email"
+                      type="email"
+                      placeholder="ornek@mail.com"
+                      value={cardForm.email}
+                      onChange={handleCardChange}
+                      required
+                    />
+                    <Input
+                      label="Kart Üzerindeki İsim"
+                      name="cardHolderName"
+                      placeholder="Ad Soyad"
+                      value={cardForm.cardHolderName}
+                      onChange={handleCardChange}
+                      required
+                    />
+                    <Input
+                      label="Kart Numarası"
+                      name="cardNumber"
+                      inputMode="numeric"
+                      placeholder="0000 0000 0000 0000"
+                      value={cardForm.cardNumber}
+                      onChange={handleCardChange}
+                      required
+                    />
+                    <div className="grid grid-cols-3 gap-3">
+                      <Input
+                        label="Ay (AA)"
+                        name="expireMonth"
+                        inputMode="numeric"
+                        placeholder="12"
+                        value={cardForm.expireMonth}
+                        onChange={handleCardChange}
+                        required
+                      />
+                      <Input
+                        label="Yıl (YY)"
+                        name="expireYear"
+                        inputMode="numeric"
+                        placeholder="28"
+                        value={cardForm.expireYear}
+                        onChange={handleCardChange}
+                        required
+                      />
+                      <Input
+                        label="CVC"
+                        name="cvc"
+                        inputMode="numeric"
+                        placeholder="123"
+                        value={cardForm.cvc}
+                        onChange={handleCardChange}
+                        required
+                      />
+                    </div>
+                    <p className="text-[11px] text-muted bg-cream-100 rounded-lg px-3 py-2">
+                      🧪 Test modu: Gerçek bir tahsilat yapılmaz. Sonu <strong>0000</strong> ile biten kart
+                      numaraları test amacıyla reddedilir, diğer geçerli (Luhn) kart numaraları onaylanır.
+                    </p>
+                  </div>
+                )}
               </div>
 
               {/* Notes */}
@@ -259,8 +413,12 @@ export default function OrderPage() {
                   </div>
                 </div>
 
-                <Button type="submit" fullWidth size="lg">
-                  Siparişi Onayla
+                {submitError && (
+                  <p className="text-xs text-red-600 bg-red-50 rounded-xl px-3 py-2 mb-3">{submitError}</p>
+                )}
+
+                <Button type="submit" fullWidth size="lg" isLoading={submitting}>
+                  {submitting ? "İşleniyor..." : "Siparişi Onayla"}
                 </Button>
               </div>
             </div>

@@ -1,21 +1,63 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter, useSearchParams } from "next/navigation";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
+import { createClient } from "@/lib/supabase/client";
 
-export default function LoginPage() {
+function mapAuthError(message: string) {
+  if (message.includes("Invalid login credentials")) {
+    return "E-posta veya şifre hatalı.";
+  }
+  if (message.includes("Email not confirmed")) {
+    return "E-posta adresinizi doğrulamanız gerekiyor. Lütfen gelen kutunuzu kontrol edin.";
+  }
+  return "Giriş yapılamadı. Lütfen tekrar deneyin.";
+}
+
+function LoginForm() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    // TODO: Supabase auth integration
-    setTimeout(() => setLoading(false), 1000);
+    setError(null);
+
+    const supabase = createClient();
+    const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (authError) {
+      setError(mapAuthError(authError.message));
+      setLoading(false);
+      return;
+    }
+
+    const redirectParam = searchParams.get("redirect");
+    if (redirectParam) {
+      router.push(redirectParam);
+      router.refresh();
+      return;
+    }
+
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", authData.user.id)
+      .single();
+
+    router.push(profile?.role === "admin" ? "/admin" : "/hesabim");
+    router.refresh();
   };
 
   return (
@@ -81,6 +123,10 @@ export default function LoginPage() {
               </Link>
             </div>
 
+            {error && (
+              <p className="text-xs text-red-600 bg-red-50 rounded-xl px-3 py-2">{error}</p>
+            )}
+
             <Button type="submit" fullWidth size="lg" isLoading={loading}>
               Giriş Yap
             </Button>
@@ -94,5 +140,13 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginForm />
+    </Suspense>
   );
 }

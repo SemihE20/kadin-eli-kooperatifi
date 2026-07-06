@@ -1,6 +1,14 @@
 import Link from "next/link";
 import Image from "next/image";
-import { NAV_ITEMS, SITE_NAME } from "@/lib/constants";
+import {
+  NAV_ITEMS,
+  SITE_NAME,
+  CONTACT_ADDRESS,
+  CONTACT_PHONE_DISPLAY,
+  CONTACT_PHONE_TEL,
+  CONTACT_EMAIL,
+} from "@/lib/constants";
+import NewsletterForm from "./NewsletterForm";
 
 export default function Footer() {
   return (
@@ -17,6 +25,19 @@ export default function Footer() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-12 texture-linen">
+        {/* Newsletter */}
+        <div className="mb-10 pb-10 border-b border-earth-800 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+          <div>
+            <h3 className="font-heading text-base font-bold text-cream-100 mb-1">
+              Bültenimize Abone Olun
+            </h3>
+            <p className="text-xs text-earth-400">
+              Yeni ürünler ve kampanyalardan ilk siz haberdar olun.
+            </p>
+          </div>
+          <NewsletterForm />
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
           {/* Brand */}
           <div className="lg:col-span-1">
@@ -109,7 +130,7 @@ export default function Footer() {
                   />
                 </svg>
                 <span className="text-sm text-earth-400">
-                  Gözler Mahallesi, Mudanya / Bursa
+                  {CONTACT_ADDRESS}
                 </span>
               </li>
               <li className="flex items-start gap-2.5">
@@ -126,9 +147,12 @@ export default function Footer() {
                     d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
                   />
                 </svg>
-                <span className="text-sm text-earth-400">
-                  info@gozlerkooperatif.com
-                </span>
+                <a
+                  href={`mailto:${CONTACT_EMAIL}`}
+                  className="text-sm text-earth-400 hover:text-cream-200 transition-colors"
+                >
+                  {CONTACT_EMAIL}
+                </a>
               </li>
               <li className="flex items-start gap-2.5">
                 <svg
@@ -144,9 +168,12 @@ export default function Footer() {
                     d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
                   />
                 </svg>
-                <span className="text-sm text-earth-400">
-                  +90 (224) 000 00 00
-                </span>
+                <a
+                  href={`tel:${CONTACT_PHONE_TEL}`}
+                  className="text-sm text-earth-400 hover:text-cream-200 transition-colors"
+                >
+                  {CONTACT_PHONE_DISPLAY}
+                </a>
               </li>
             </ul>
           </div>

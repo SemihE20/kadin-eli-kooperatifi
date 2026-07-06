@@ -12,8 +12,16 @@ export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:30
 // ==========================================
 // WhatsApp
 // ==========================================
-export const WHATSAPP_NUMBER = "905XXXXXXXXX"; // Kooperatif WP numarası
+export const WHATSAPP_NUMBER = "905317126820"; // Kooperatif WP numarası
 export const WHATSAPP_BASE_URL = "https://wa.me";
+
+// ==========================================
+// Contact Info
+// ==========================================
+export const CONTACT_ADDRESS = "Gözler Mahallesi, Pamukkale / Denizli";
+export const CONTACT_PHONE_DISPLAY = "+90 531 712 68 20";
+export const CONTACT_PHONE_TEL = "+905317126820";
+export const CONTACT_EMAIL = "info@gozlerkooperatif.com";
 
 // ==========================================
 // Navigation
@@ -59,6 +67,12 @@ export const CATEGORIES = [
 // Order & Payment
 // ==========================================
 export const PAYMENT_METHODS = [
+  {
+    id: "kredi_karti" as const,
+    label: "Kredi/Banka Kartı",
+    description: "iyzico altyapısı ile güvenli online ödeme (test modu)",
+    icon: "💳",
+  },
   {
     id: "havale_eft" as const,
     label: "Havale / EFT",

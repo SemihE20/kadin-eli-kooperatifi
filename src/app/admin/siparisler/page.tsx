@@ -21,6 +21,7 @@ interface AdminOrder {
     address: string;
   };
   payment_method: string;
+  payment_reference: string | null;
   notes: string | null;
   created_at: string;
 }
@@ -31,6 +32,12 @@ const STATUS_CONFIG: Record<OrderStatus, { label: string; color: string }> = {
   kargoda:     { label: "Kargoda",      color: "bg-purple-100 text-purple-700" },
   teslim_edildi: { label: "Teslim Edildi", color: "bg-green-100 text-green-700" },
   iptal:       { label: "İptal",        color: "bg-red-100 text-red-700" },
+};
+
+const PAYMENT_METHOD_LABELS: Record<string, string> = {
+  havale_eft: "💳 Havale/EFT",
+  kapida_odeme: "🚪 Kapıda Ödeme",
+  kredi_karti: "💳 Kredi/Banka Kartı",
 };
 
 const STATUS_OPTIONS: OrderStatus[] = [
@@ -157,8 +164,11 @@ export default function AdminOrdersPage() {
                   </td>
                   <td className="px-5 py-4">
                     <span className="text-xs text-gray-500">
-                      {order.payment_method === "havale_eft" ? "💳 Havale/EFT" : "🚪 Kapıda Ödeme"}
+                      {PAYMENT_METHOD_LABELS[order.payment_method] ?? order.payment_method}
                     </span>
+                    {order.payment_reference && (
+                      <p className="text-[10px] text-gray-400 font-mono mt-0.5">{order.payment_reference}</p>
+                    )}
                   </td>
                   <td className="px-5 py-4 text-sm font-semibold text-right text-primary-700">
                     {formatPrice(order.total)}

@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { formatPrice, calculateDiscount, getPrimaryImage } from "@/lib/utils";
+import { formatPrice, calculateDiscount, getPrimaryImage, isInSeasonNow } from "@/lib/utils";
 import { useCartStore } from "@/store/cart";
 import Badge from "@/components/ui/Badge";
 import type { Product } from "@/types";
@@ -16,6 +16,7 @@ export default function ProductCard({ product }: ProductCardProps) {
   const discount = calculateDiscount(product.price, product.compare_at_price);
   const imageUrl = getPrimaryImage(product.images);
   const isOutOfStock = product.stock_quantity <= 0;
+  const isPlantingSeason = product.category === "fidan" && isInSeasonNow(product.season_info);
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -59,10 +60,16 @@ export default function ProductCard({ product }: ProductCardProps) {
                 ⭐ Öne Çıkan
               </Badge>
             )}
-            {product.is_seasonal && (
-              <Badge variant="warning" size="sm">
-                🌸 Mevsimlik
+            {isPlantingSeason ? (
+              <Badge variant="success" size="sm">
+                🌱 Bu ay ekime uygun
               </Badge>
+            ) : (
+              product.is_seasonal && (
+                <Badge variant="warning" size="sm">
+                  🌸 Mevsimlik
+                </Badge>
+              )
             )}
           </div>
 

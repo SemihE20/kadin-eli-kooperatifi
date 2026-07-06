@@ -11,10 +11,12 @@ import CartDrawer from "../cart/CartDrawer";
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
   const { getTotalItems, toggleCart, isOpen: cartOpen } = useCartStore();
   const totalItems = getTotalItems();
 
   useEffect(() => {
+    setIsMounted(true);
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
     };
@@ -96,7 +98,7 @@ export default function Header() {
                     d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
                   />
                 </svg>
-                {totalItems > 0 && (
+                {isMounted && totalItems > 0 && (
                   <span className="absolute -top-0.5 -right-0.5 w-5 h-5 bg-primary-600 text-white text-[10px] font-bold rounded-full flex items-center justify-center animate-scale-in">
                     {totalItems}
                   </span>

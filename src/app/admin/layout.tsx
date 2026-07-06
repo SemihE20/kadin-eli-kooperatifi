@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 
 const NAV_ITEMS = [
   { href: "/admin", label: "Dashboard", icon: "📊", exact: true },
@@ -13,9 +14,17 @@ const NAV_ITEMS = [
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
 
   const isActive = (href: string, exact: boolean) =>
     exact ? pathname === href : pathname.startsWith(href);
+
+  const handleSignOut = async () => {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    router.push("/giris");
+    router.refresh();
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
@@ -61,7 +70,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <span>🏪</span>
             Mağazaya Git
           </Link>
-          <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-primary-400 hover:text-red-300 hover:bg-primary-800 transition-all cursor-pointer text-left">
+          <button
+            onClick={handleSignOut}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-primary-400 hover:text-red-300 hover:bg-primary-800 transition-all cursor-pointer text-left"
+          >
             <span>🚪</span>
             Çıkış Yap
           </button>

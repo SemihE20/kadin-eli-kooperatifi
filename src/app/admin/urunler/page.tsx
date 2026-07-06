@@ -55,6 +55,14 @@ export default function AdminProductsPage() {
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [originalPreview, setOriginalPreview] = useState<string | null>(null);
+  const [processedPreview, setProcessedPreview] = useState<string | null>(null);
+  const [processedBlob, setProcessedBlob] = useState<Blob | null>(null);
+  const [bgRemoving, setBgRemoving] = useState(false);
+  const [bgError, setBgError] = useState<string | null>(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
+
   const supabase = createClient();
 
   const fetchProducts = useCallback(async () => {
@@ -75,10 +83,26 @@ export default function AdminProductsPage() {
       (p.category ?? "").toLowerCase().includes(search.toLowerCase())
   );
 
+  function resetImageState() {
+    setImageFile(null);
+    setOriginalPreview(null);
+    setProcessedPreview(null);
+    setProcessedBlob(null);
+    setBgRemoving(false);
+    setBgError(null);
+    setUploadingImage(false);
+  }
+
+  function closeModal() {
+    setShowModal(false);
+    resetImageState();
+  }
+
   function openAdd() {
     setEditTarget(null);
     setForm(EMPTY_FORM);
     setFormError(null);
+    resetImageState();
     setShowModal(true);
   }
 
@@ -97,7 +121,74 @@ export default function AdminProductsPage() {
       image_url: product.image_url ?? "",
     });
     setFormError(null);
+    resetImageState();
     setShowModal(true);
+  }
+
+  async function runRemoveBackground(file: File) {
+    setBgRemoving(true);
+    setBgError(null);
+    try {
+      const body = new FormData();
+      body.append("image_file", file);
+      const res = await fetch("/api/admin/remove-bg", { method: "POST", body });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        setBgError(err.error ?? "Arka plan kaldırılamadı.");
+        return;
+      }
+      const blob = await res.blob();
+      setProcessedBlob(blob);
+      setProcessedPreview(URL.createObjectURL(blob));
+    } catch {
+      setBgError("Arka plan kaldırılamadı. Bağlantınızı kontrol edin.");
+    } finally {
+      setBgRemoving(false);
+    }
+  }
+
+  function handleImageSelect(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+    if (!allowedTypes.includes(file.type)) {
+      setImageFile(null);
+      setOriginalPreview(null);
+      setBgError(
+        `Desteklenmeyen görsel formatı (${file.type || "bilinmiyor"}). Lütfen JPEG, PNG veya WebP kullanın — iPhone HEIC fotoğraflarını önce JPEG'e dönüştürün.`
+      );
+      e.target.value = "";
+      return;
+    }
+
+    setImageFile(file);
+    setOriginalPreview(URL.createObjectURL(file));
+    setProcessedPreview(null);
+    setProcessedBlob(null);
+    setBgError(null);
+    runRemoveBackground(file);
+  }
+
+  async function approveProcessedImage() {
+    if (!processedBlob) return;
+    setUploadingImage(true);
+    setBgError(null);
+
+    const path = `${crypto.randomUUID()}.png`;
+    const { error } = await supabase.storage
+      .from("product-images")
+      .upload(path, processedBlob, { contentType: "image/png", upsert: false });
+
+    if (error) {
+      setBgError(error.message);
+      setUploadingImage(false);
+      return;
+    }
+
+    const { data } = supabase.storage.from("product-images").getPublicUrl(path);
+    setForm((f) => ({ ...f, image_url: data.publicUrl }));
+    resetImageState();
   }
 
   async function handleDelete(id: string, name: string) {
@@ -135,7 +226,7 @@ export default function AdminProductsPage() {
       return;
     }
 
-    setShowModal(false);
+    closeModal();
     fetchProducts();
     setSaving(false);
   }
@@ -281,7 +372,7 @@ export default function AdminProductsPage() {
       {showModal && (
         <div
           className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
-          onClick={() => setShowModal(false)}
+          onClick={() => closeModal()}
         >
           <div
             className="bg-white rounded-2xl p-6 max-w-lg w-full max-h-[90vh] overflow-y-auto"
@@ -291,7 +382,7 @@ export default function AdminProductsPage() {
               <h3 className="text-base font-bold text-gray-900">
                 {editTarget ? "Ürünü Düzenle" : "Yeni Ürün Ekle"}
               </h3>
-              <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-gray-600 cursor-pointer">✕</button>
+              <button onClick={() => closeModal()} className="text-gray-400 hover:text-gray-600 cursor-pointer">✕</button>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -392,15 +483,102 @@ export default function AdminProductsPage() {
                 />
               </div>
 
-              {/* Image URL */}
+              {/* Image Upload + Background Removal */}
               <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">Görsel URL</label>
+                <label className="block text-xs font-medium text-gray-700 mb-1">Ürün Görseli</label>
+
+                {form.image_url && !originalPreview && (
+                  <div className="mb-2 flex items-center gap-2">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={form.image_url}
+                      alt="Mevcut görsel"
+                      className="w-14 h-14 rounded-lg object-cover border border-gray-200"
+                    />
+                    <span className="text-xs text-gray-500">Mevcut görsel</span>
+                  </div>
+                )}
+
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageSelect}
+                  className="w-full text-xs text-gray-600 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:bg-primary-50 file:text-primary-700 file:text-xs file:font-medium hover:file:bg-primary-100 cursor-pointer"
+                />
+
+                {(originalPreview || bgRemoving) && (
+                  <div className="mt-3 grid grid-cols-2 gap-3">
+                    <div>
+                      <p className="text-[10px] text-gray-400 mb-1">Orijinal</p>
+                      {originalPreview && (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={originalPreview}
+                          alt="Orijinal"
+                          className="w-full h-28 object-cover rounded-lg border border-gray-200"
+                        />
+                      )}
+                    </div>
+                    <div>
+                      <p className="text-[10px] text-gray-400 mb-1">Arka Planı Kaldırılmış</p>
+                      <div className="w-full h-28 rounded-lg border border-gray-200 bg-gray-100 flex items-center justify-center overflow-hidden">
+                        {bgRemoving ? (
+                          <span className="text-xs text-gray-400">İşleniyor...</span>
+                        ) : processedPreview ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={processedPreview}
+                            alt="Arka planı kaldırılmış"
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <span className="text-xs text-gray-300">—</span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {bgError && (
+                  <p className="text-xs text-red-600 bg-red-50 rounded-xl px-3 py-2 mt-2">{bgError}</p>
+                )}
+
+                {processedPreview && !bgRemoving && (
+                  <div className="flex gap-2 mt-2">
+                    <button
+                      type="button"
+                      onClick={approveProcessedImage}
+                      disabled={uploadingImage}
+                      className="flex-1 py-2 bg-primary-700 text-white text-xs font-medium rounded-lg hover:bg-primary-800 disabled:opacity-50 cursor-pointer transition-colors"
+                    >
+                      {uploadingImage ? "Yükleniyor..." : "✓ Bu Görseli Onayla ve Kullan"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={resetImageState}
+                      className="px-3 py-2 bg-gray-100 text-gray-600 text-xs font-medium rounded-lg hover:bg-gray-200 cursor-pointer transition-colors"
+                    >
+                      Vazgeç
+                    </button>
+                  </div>
+                )}
+
+                {bgError && imageFile && !bgRemoving && (
+                  <button
+                    type="button"
+                    onClick={() => runRemoveBackground(imageFile)}
+                    className="mt-2 text-xs text-primary-700 font-medium hover:text-primary-800 cursor-pointer"
+                  >
+                    Tekrar Dene
+                  </button>
+                )}
+
                 <input
                   type="text"
                   value={form.image_url}
                   onChange={(e) => setForm((f) => ({ ...f, image_url: e.target.value }))}
-                  className="w-full px-3 py-2 text-sm rounded-xl border border-gray-200 focus:border-primary-400 focus:ring-2 focus:ring-primary-400/20 focus:outline-none"
-                  placeholder="/images/urun.jpg veya Supabase Storage URL"
+                  className="w-full mt-2 px-3 py-2 text-sm rounded-xl border border-gray-200 focus:border-primary-400 focus:ring-2 focus:ring-primary-400/20 focus:outline-none"
+                  placeholder="veya görsel URL'sini elle girin"
                 />
               </div>
 
@@ -433,7 +611,7 @@ export default function AdminProductsPage() {
               <div className="flex gap-2 pt-2">
                 <button
                   type="button"
-                  onClick={() => setShowModal(false)}
+                  onClick={() => closeModal()}
                   className="flex-1 py-2.5 bg-gray-100 text-gray-700 text-sm font-medium rounded-xl hover:bg-gray-200 transition-colors cursor-pointer"
                 >
                   Vazgeç

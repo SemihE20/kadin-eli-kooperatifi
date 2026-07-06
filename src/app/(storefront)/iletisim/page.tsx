@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import PageHeader from "@/components/layout/PageHeader";
 import Button from "@/components/ui/Button";
 import { generateWhatsAppLink } from "@/lib/utils";
+import { CONTACT_ADDRESS, CONTACT_PHONE_DISPLAY, CONTACT_PHONE_TEL, CONTACT_EMAIL } from "@/lib/constants";
 
 export const metadata: Metadata = {
   title: "İletişim",
@@ -41,7 +42,7 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <h3 className="text-sm font-semibold text-foreground mb-1">Adres</h3>
-                    <p className="text-sm text-muted">Gözler Mahallesi, Mudanya / Bursa</p>
+                    <p className="text-sm text-muted">{CONTACT_ADDRESS}</p>
                   </div>
                 </div>
 
@@ -53,7 +54,9 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <h3 className="text-sm font-semibold text-foreground mb-1">Telefon</h3>
-                    <p className="text-sm text-muted">+90 (224) 000 00 00</p>
+                    <a href={`tel:${CONTACT_PHONE_TEL}`} className="text-sm text-muted hover:text-primary-700 transition-colors">
+                      {CONTACT_PHONE_DISPLAY}
+                    </a>
                   </div>
                 </div>
 
@@ -65,7 +68,9 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <h3 className="text-sm font-semibold text-foreground mb-1">E-posta</h3>
-                    <p className="text-sm text-muted">info@gozlerkooperatif.com</p>
+                    <a href={`mailto:${CONTACT_EMAIL}`} className="text-sm text-muted hover:text-primary-700 transition-colors">
+                      {CONTACT_EMAIL}
+                    </a>
                   </div>
                 </div>
 

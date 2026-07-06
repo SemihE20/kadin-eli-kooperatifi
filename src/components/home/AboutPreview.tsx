@@ -40,7 +40,7 @@ export default function AboutPreview() {
               <span className="gradient-text heading-accent">Doğaya ve Sofralarınıza</span>
             </h2>
             <p className="text-sm text-muted leading-relaxed mb-4">
-              Gözler Kadıneli Kooperatifi, Bursa Mudanya Gözler Mahallesi&apos;nde 
+              Gözler Kadıneli Kooperatifi, Denizli Pamukkale Gözler Mahallesi&apos;nde
               kadınların el emeklerini değerlendirmek, ekonomik bağımsızlıklarını 
               güçlendirmek ve doğal üretimi desteklemek amacıyla kurulmuştur.
             </p>
