@@ -29,10 +29,19 @@ export async function updateSession(request: NextRequest) {
     }
   );
 
-  // Refresh session if expired
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // Refresh session if expired — wrapped to avoid hanging when Supabase is unreachable
+  let user = null;
+  try {
+    const result = await Promise.race([
+      supabase.auth.getUser(),
+      new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error("Supabase timeout")), 3000)
+      ),
+    ]);
+    user = (result as Awaited<ReturnType<typeof supabase.auth.getUser>>).data.user;
+  } catch {
+    // Supabase unreachable — skip auth check, allow non-admin routes through
+  }
 
   // Protect admin routes
   if (request.nextUrl.pathname.startsWith("/admin")) {
@@ -44,11 +53,17 @@ export async function updateSession(request: NextRequest) {
     }
 
     // Check admin role
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", user.id)
-      .single();
+    let profile = null;
+    try {
+      const { data } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", user.id)
+        .single();
+      profile = data;
+    } catch {
+      // ignore
+    }
 
     if (!profile || profile.role !== "admin") {
       const url = request.nextUrl.clone();

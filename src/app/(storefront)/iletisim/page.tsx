@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import PageHeader from "@/components/layout/PageHeader";
 import Button from "@/components/ui/Button";
 import { generateWhatsAppLink } from "@/lib/utils";
 
@@ -15,38 +15,24 @@ export default function ContactPage() {
 
   return (
     <>
-      {/* Page Header */}
-      <section className="pt-28 pb-10 gradient-hero relative">
-        <div className="absolute inset-0 pattern-dots opacity-10" />
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <nav className="flex items-center gap-2 text-xs text-primary-200 mb-4">
-            <Link href="/" className="hover:text-white transition-colors">Ana Sayfa</Link>
-            <span>/</span>
-            <span className="text-white">İletişim</span>
-          </nav>
-          <h1 className="text-3xl sm:text-4xl font-bold text-white mb-2">İletişim</h1>
-          <p className="text-sm text-primary-100/80 max-w-lg">
-            Sorularınız veya siparişleriniz için bize ulaşın.
-          </p>
-        </div>
-        <div className="absolute bottom-0 left-0 right-0">
-          <svg viewBox="0 0 1440 40" className="w-full h-[30px] fill-background" preserveAspectRatio="none">
-            <path d="M0,20 C480,40 960,0 1440,25 L1440,40 L0,40 Z" />
-          </svg>
-        </div>
-      </section>
+      <PageHeader
+        title="İletişim"
+        description="Sorularınız veya siparişleriniz için bize ulaşın."
+        breadcrumbs={[
+          { label: "Ana Sayfa", href: "/" },
+          { label: "İletişim" },
+        ]}
+      />
 
-      {/* Content */}
       <section className="py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
             {/* Contact Info */}
             <div>
-              <h2 className="text-xl font-bold text-foreground mb-6">Bize Ulaşın</h2>
+              <h2 className="font-heading text-xl font-bold text-foreground mb-6">Bize Ulaşın</h2>
 
-              <div className="space-y-6 mb-8">
-                {/* Address */}
-                <div className="flex items-start gap-4 p-4 bg-white rounded-xl border border-border">
+              <div className="space-y-4 mb-8">
+                <div className="flex items-start gap-4 p-4 bg-card rounded-2xl border border-earth-200">
                   <div className="w-10 h-10 bg-primary-50 rounded-lg flex items-center justify-center shrink-0">
                     <svg className="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
@@ -59,8 +45,7 @@ export default function ContactPage() {
                   </div>
                 </div>
 
-                {/* Phone */}
-                <div className="flex items-start gap-4 p-4 bg-white rounded-xl border border-border">
+                <div className="flex items-start gap-4 p-4 bg-card rounded-2xl border border-earth-200">
                   <div className="w-10 h-10 bg-primary-50 rounded-lg flex items-center justify-center shrink-0">
                     <svg className="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
@@ -72,8 +57,7 @@ export default function ContactPage() {
                   </div>
                 </div>
 
-                {/* Email */}
-                <div className="flex items-start gap-4 p-4 bg-white rounded-xl border border-border">
+                <div className="flex items-start gap-4 p-4 bg-card rounded-2xl border border-earth-200">
                   <div className="w-10 h-10 bg-primary-50 rounded-lg flex items-center justify-center shrink-0">
                     <svg className="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
@@ -85,12 +69,11 @@ export default function ContactPage() {
                   </div>
                 </div>
 
-                {/* WhatsApp */}
                 <a
                   href={whatsappLink}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-start gap-4 p-4 bg-green-50 rounded-xl border border-green-200 hover:bg-green-100 transition-colors group"
+                  className="flex items-start gap-4 p-4 bg-green-50 rounded-2xl border border-green-200 hover:bg-green-100 transition-colors group"
                 >
                   <div className="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center shrink-0">
                     <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor">
@@ -107,15 +90,15 @@ export default function ContactPage() {
 
             {/* Contact Form */}
             <div>
-              <h2 className="text-xl font-bold text-foreground mb-6">Mesaj Gönderin</h2>
-              <form className="space-y-4 p-6 bg-white rounded-2xl border border-border">
+              <h2 className="font-heading text-xl font-bold text-foreground mb-6">Mesaj Gönderin</h2>
+              <form className="space-y-4 p-6 bg-card rounded-2xl border border-earth-200">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="flex flex-col gap-1.5">
                     <label htmlFor="name" className="text-sm font-medium text-foreground">Ad Soyad</label>
                     <input
                       type="text"
                       id="name"
-                      className="w-full px-4 py-2.5 rounded-xl border border-border text-sm bg-white placeholder:text-muted hover:border-primary-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 focus:outline-none transition-all"
+                      className="w-full px-4 py-2.5 rounded-xl border border-earth-200 text-sm bg-white placeholder:text-muted hover:border-primary-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 focus:outline-none transition-all"
                       placeholder="Adınız Soyadınız"
                     />
                   </div>
@@ -124,7 +107,7 @@ export default function ContactPage() {
                     <input
                       type="email"
                       id="email"
-                      className="w-full px-4 py-2.5 rounded-xl border border-border text-sm bg-white placeholder:text-muted hover:border-primary-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 focus:outline-none transition-all"
+                      className="w-full px-4 py-2.5 rounded-xl border border-earth-200 text-sm bg-white placeholder:text-muted hover:border-primary-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 focus:outline-none transition-all"
                       placeholder="ornek@mail.com"
                     />
                   </div>
@@ -134,7 +117,7 @@ export default function ContactPage() {
                   <input
                     type="text"
                     id="subject"
-                    className="w-full px-4 py-2.5 rounded-xl border border-border text-sm bg-white placeholder:text-muted hover:border-primary-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 focus:outline-none transition-all"
+                    className="w-full px-4 py-2.5 rounded-xl border border-earth-200 text-sm bg-white placeholder:text-muted hover:border-primary-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 focus:outline-none transition-all"
                     placeholder="Mesajınızın konusu"
                   />
                 </div>
@@ -143,7 +126,7 @@ export default function ContactPage() {
                   <textarea
                     id="message"
                     rows={5}
-                    className="w-full px-4 py-2.5 rounded-xl border border-border text-sm bg-white placeholder:text-muted hover:border-primary-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 focus:outline-none transition-all resize-none"
+                    className="w-full px-4 py-2.5 rounded-xl border border-earth-200 text-sm bg-white placeholder:text-muted hover:border-primary-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 focus:outline-none transition-all resize-none"
                     placeholder="Mesajınızı buraya yazın..."
                   />
                 </div>

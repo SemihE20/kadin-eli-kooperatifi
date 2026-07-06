@@ -10,21 +10,21 @@ export default function CategoryShowcase() {
   };
 
   const categoryGradients: Record<string, string> = {
-    gida: "from-amber-50 to-orange-50 hover:from-amber-100 hover:to-orange-100",
-    "el-isi": "from-rose-50 to-pink-50 hover:from-rose-100 hover:to-pink-100",
-    "dogal-urunler": "from-emerald-50 to-green-50 hover:from-emerald-100 hover:to-green-100",
-    hediyelik: "from-violet-50 to-purple-50 hover:from-violet-100 hover:to-purple-100",
+    gida: "from-cream-100 to-cream-200 hover:from-cream-200 hover:to-cream-300",
+    "el-isi": "from-earth-50 to-cream-100 hover:from-earth-100 hover:to-cream-200",
+    "dogal-urunler": "from-primary-50 to-cream-50 hover:from-primary-100 hover:to-cream-100",
+    hediyelik: "from-cream-50 to-earth-50 hover:from-cream-100 hover:to-earth-100",
   };
 
   return (
-    <section className="py-20" id="categories">
+    <section className="py-20 texture-paper" id="categories">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center mb-12">
           <span className="inline-block text-xs font-semibold text-primary-600 uppercase tracking-widest mb-2">
             Kategoriler
           </span>
-          <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-3">
+          <h2 className="font-heading text-2xl sm:text-3xl font-bold text-foreground mb-3">
             Ne Arıyorsunuz?
           </h2>
           <p className="text-sm text-muted max-w-md mx-auto">
@@ -40,10 +40,10 @@ export default function CategoryShowcase() {
               href={`/urunler?kategori=${category.slug}`}
               className={`
                 group relative flex flex-col items-center justify-center
-                p-8 sm:p-10 rounded-2xl border border-border
-                bg-gradient-to-br ${categoryGradients[category.slug] || "from-earth-50 to-earth-100"}
+                p-8 sm:p-10 rounded-2xl border border-earth-200
+                bg-gradient-to-br ${categoryGradients[category.slug] || "from-earth-50 to-cream-100"}
                 transition-all duration-300
-                hover:shadow-card hover:border-transparent hover:-translate-y-1
+                hover:shadow-card hover:border-earth-300 hover:-translate-y-1
               `}
               id={`category-${category.slug}`}
             >
@@ -53,7 +53,7 @@ export default function CategoryShowcase() {
               </span>
 
               {/* Name */}
-              <h3 className="text-sm sm:text-base font-semibold text-foreground text-center mb-1">
+              <h3 className="font-heading text-sm sm:text-base font-semibold text-foreground text-center mb-1">
                 {category.name}
               </h3>
 

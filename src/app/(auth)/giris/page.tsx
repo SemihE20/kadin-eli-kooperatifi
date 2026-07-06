@@ -25,9 +25,9 @@ export default function LoginPage() {
         <div className="absolute inset-0 pattern-dots opacity-10" />
         <div className="relative z-10 text-center">
           <div className="relative w-24 h-24 mx-auto mb-6 rounded-full overflow-hidden ring-4 ring-white/20">
-            <Image src="/logo.jpeg" alt="Logo" fill className="object-cover" />
+            <Image src="/logo.png" alt="Logo" fill className="object-cover" />
           </div>
-          <h2 className="text-3xl font-bold text-white mb-3">Hoş Geldiniz</h2>
+          <h2 className="font-heading text-3xl font-bold text-white mb-3">Hoş Geldiniz</h2>
           <p className="text-sm text-primary-200 max-w-sm mx-auto leading-relaxed">
             Gözler Kadıneli Kooperatifi hesabınıza giriş yaparak siparişlerinizi takip edebilir
             ve alışverişe devam edebilirsiniz.
@@ -41,11 +41,11 @@ export default function LoginPage() {
           {/* Mobile Logo */}
           <div className="lg:hidden text-center mb-8">
             <div className="relative w-16 h-16 mx-auto mb-3 rounded-full overflow-hidden ring-2 ring-primary-200">
-              <Image src="/logo.jpeg" alt="Logo" fill className="object-cover" />
+              <Image src="/logo.png" alt="Logo" fill className="object-cover" />
             </div>
           </div>
 
-          <h1 className="text-2xl font-bold text-foreground mb-1">Giriş Yap</h1>
+          <h1 className="font-heading text-2xl font-bold text-foreground mb-1">Giriş Yap</h1>
           <p className="text-sm text-muted mb-8">
             Hesabınız yok mu?{" "}
             <Link href="/kayit" className="text-primary-700 font-medium hover:text-primary-800 transition-colors">

@@ -28,18 +28,18 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
     <div className="fixed inset-0 z-[60] md:hidden">
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-black/40 backdrop-blur-sm animate-fade-in"
+        className="absolute inset-0 bg-earth-900/40 backdrop-blur-sm animate-fade-in"
         onClick={onClose}
       />
 
       {/* Menu Panel */}
-      <div className="absolute right-0 top-0 bottom-0 w-[280px] bg-white shadow-elevated animate-slide-in-right">
+      <div className="absolute right-0 top-0 bottom-0 w-[280px] bg-cream-50 shadow-elevated animate-slide-in-right texture-paper">
         {/* Close Button */}
-        <div className="flex items-center justify-between p-4 border-b border-border">
-          <span className="text-sm font-semibold text-primary-800">Menü</span>
+        <div className="flex items-center justify-between p-4 border-b border-earth-200">
+          <span className="font-heading text-sm font-semibold text-primary-800">Menü</span>
           <button
             onClick={onClose}
-            className="p-2 rounded-xl text-muted hover:text-foreground hover:bg-earth-50 transition-colors cursor-pointer"
+            className="p-2 rounded-xl text-muted hover:text-foreground hover:bg-earth-100 transition-colors cursor-pointer"
             aria-label="Menüyü kapat"
           >
             <svg
@@ -65,7 +65,7 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
               key={item.href}
               href={item.href}
               onClick={onClose}
-              className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-foreground/80 hover:text-primary-700 hover:bg-primary-50 rounded-xl transition-all duration-200"
+              className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-foreground/80 hover:text-primary-700 hover:bg-cream-200 rounded-xl transition-all duration-200"
             >
               {item.label}
             </Link>
@@ -73,7 +73,7 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
         </nav>
 
         {/* Auth Section */}
-        <div className="p-4 border-t border-border mt-auto">
+        <div className="p-4 border-t border-earth-200 mt-auto">
           <Link
             href="/giris"
             onClick={onClose}

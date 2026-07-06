@@ -4,7 +4,7 @@ import { NAV_ITEMS, SITE_NAME } from "@/lib/constants";
 
 export default function Footer() {
   return (
-    <footer className="bg-primary-900 text-primary-100">
+    <footer className="bg-earth-900 text-earth-200">
       {/* Wave Separator */}
       <div className="relative -mt-px">
         <svg
@@ -16,27 +16,27 @@ export default function Footer() {
         </svg>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-12 texture-linen">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
           {/* Brand */}
           <div className="lg:col-span-1">
             <div className="flex items-center gap-3 mb-4">
-              <div className="relative w-10 h-10 rounded-full overflow-hidden ring-2 ring-primary-600">
+              <div className="relative w-10 h-10 rounded-full overflow-hidden ring-2 ring-earth-700">
                 <Image
-                  src="/logo.jpeg"
+                  src="/logo.png"
                   alt={SITE_NAME}
                   fill
                   className="object-cover"
                 />
               </div>
               <div>
-                <p className="font-bold text-white text-sm">Gözler</p>
-                <p className="text-[10px] text-primary-300 tracking-wide uppercase">
+                <p className="font-heading font-bold text-cream-100 text-sm">Gözler</p>
+                <p className="text-[10px] text-earth-400 tracking-wide uppercase">
                   Kadıneli Kooperatifi
                 </p>
               </div>
             </div>
-            <p className="text-sm text-primary-300 leading-relaxed">
+            <p className="text-sm text-earth-400 leading-relaxed">
               El emeği, göz nuru ürünler. Kadın ellerinden doğaya ve
               sofralarınıza doğal, sağlıklı ürünler.
             </p>
@@ -44,7 +44,7 @@ export default function Footer() {
 
           {/* Quick Links */}
           <div>
-            <h3 className="text-sm font-semibold text-white mb-4 uppercase tracking-wider">
+            <h3 className="font-heading text-sm font-semibold text-cream-100 mb-4 uppercase tracking-wider">
               Hızlı Bağlantılar
             </h3>
             <ul className="space-y-2.5">
@@ -52,7 +52,7 @@ export default function Footer() {
                 <li key={item.href}>
                   <Link
                     href={item.href}
-                    className="text-sm text-primary-300 hover:text-white transition-colors duration-200"
+                    className="text-sm text-earth-400 hover:text-cream-200 transition-colors duration-200"
                   >
                     {item.label}
                   </Link>
@@ -63,16 +63,16 @@ export default function Footer() {
 
           {/* Categories */}
           <div>
-            <h3 className="text-sm font-semibold text-white mb-4 uppercase tracking-wider">
+            <h3 className="font-heading text-sm font-semibold text-cream-100 mb-4 uppercase tracking-wider">
               Kategoriler
             </h3>
             <ul className="space-y-2.5">
-              {["Gıda Ürünleri", "El İşi Ürünler", "Doğal Ürünler", "Hediyelik Ürünler"].map(
+              {["Tıbbi Bitkiler", "Gıda Ürünleri", "Fidan & Tohum", "Doğal Ürünler"].map(
                 (cat) => (
                   <li key={cat}>
                     <Link
                       href={`/urunler`}
-                      className="text-sm text-primary-300 hover:text-white transition-colors duration-200"
+                      className="text-sm text-earth-400 hover:text-cream-200 transition-colors duration-200"
                     >
                       {cat}
                     </Link>
@@ -84,13 +84,13 @@ export default function Footer() {
 
           {/* Contact */}
           <div>
-            <h3 className="text-sm font-semibold text-white mb-4 uppercase tracking-wider">
+            <h3 className="font-heading text-sm font-semibold text-cream-100 mb-4 uppercase tracking-wider">
               İletişim
             </h3>
             <ul className="space-y-3">
               <li className="flex items-start gap-2.5">
                 <svg
-                  className="w-4 h-4 mt-0.5 text-primary-400 shrink-0"
+                  className="w-4 h-4 mt-0.5 text-earth-500 shrink-0"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -108,13 +108,13 @@ export default function Footer() {
                     d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
                   />
                 </svg>
-                <span className="text-sm text-primary-300">
+                <span className="text-sm text-earth-400">
                   Gözler Mahallesi, Mudanya / Bursa
                 </span>
               </li>
               <li className="flex items-start gap-2.5">
                 <svg
-                  className="w-4 h-4 mt-0.5 text-primary-400 shrink-0"
+                  className="w-4 h-4 mt-0.5 text-earth-500 shrink-0"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -126,13 +126,13 @@ export default function Footer() {
                     d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
                   />
                 </svg>
-                <span className="text-sm text-primary-300">
+                <span className="text-sm text-earth-400">
                   info@gozlerkooperatif.com
                 </span>
               </li>
               <li className="flex items-start gap-2.5">
                 <svg
-                  className="w-4 h-4 mt-0.5 text-primary-400 shrink-0"
+                  className="w-4 h-4 mt-0.5 text-earth-500 shrink-0"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -144,7 +144,7 @@ export default function Footer() {
                     d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
                   />
                 </svg>
-                <span className="text-sm text-primary-300">
+                <span className="text-sm text-earth-400">
                   +90 (224) 000 00 00
                 </span>
               </li>
@@ -153,20 +153,20 @@ export default function Footer() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="mt-12 pt-6 border-t border-primary-800 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-xs text-primary-400">
+        <div className="mt-12 pt-6 border-t border-earth-800 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p className="text-xs text-earth-500">
             © {new Date().getFullYear()} {SITE_NAME}. Tüm hakları saklıdır.
           </p>
           <div className="flex items-center gap-4">
             <Link
               href="/hakkimizda"
-              className="text-xs text-primary-400 hover:text-white transition-colors"
+              className="text-xs text-earth-500 hover:text-cream-200 transition-colors"
             >
               Gizlilik Politikası
             </Link>
             <Link
               href="/hakkimizda"
-              className="text-xs text-primary-400 hover:text-white transition-colors"
+              className="text-xs text-earth-500 hover:text-cream-200 transition-colors"
             >
               Kullanım Koşulları
             </Link>

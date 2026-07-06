@@ -1,142 +1,180 @@
-import type { Metadata } from "next";
-import Link from "next/link";
+"use client";
+
+import { useState, useMemo } from "react";
+import PageHeader from "@/components/layout/PageHeader";
 import ProductGrid from "@/components/product/ProductGrid";
 import type { Product } from "@/types";
 
-export const metadata: Metadata = {
-  title: "Ürünler",
-  description: "Gözler Kadıneli Kooperatifi el yapımı ürünleri. Doğal gıda, el işi, doğal ürünler ve hediyelik çeşitleri.",
-};
-
-// Demo products - will be replaced with Supabase query
 const DEMO_PRODUCTS: Product[] = [
   {
     id: "1", name: "Doğal Çam Balı (850g)", slug: "dogal-cam-bali",
     description: "Uludağ eteklerinden toplanan saf çam balı. Hiçbir katkı maddesi içermez.",
-    price: 450, compare_at_price: 520, category_id: "1", stock_quantity: 25,
-    is_active: true, is_featured: true, weight: 850,
+    price: 450, compare_at_price: 520, category_id: "1", category: "gida",
+    stock_quantity: 25, is_active: true, is_featured: true, is_seasonal: false,
+    season_info: null, usage_info: "Kahvaltıda veya çaylara tatlandırıcı olarak kullanılır.", storage_info: "Serin ve kuru yerde saklayın.",
+    weight: 850, image_url: "/images/placeholder.jpg", created_by: null,
     created_at: new Date().toISOString(), updated_at: new Date().toISOString(),
-    category: { id: "1", name: "Gıda Ürünleri", slug: "gida", description: null, image_url: null, sort_order: 1, created_at: "" },
+    category_rel: { id: "1", name: "Gıda Ürünleri", slug: "gida", description: null, image_url: null, sort_order: 1, created_at: "" },
     images: [{ id: "1", product_id: "1", image_url: "/images/placeholder.jpg", alt_text: "Çam Balı", sort_order: 0, is_primary: true }],
   },
   {
-    id: "2", name: "El Örgüsü Yün Şal", slug: "el-orgusu-yun-sal",
-    description: "Doğal boyalı yünden el örgüsü şal. Her biri benzersiz desenlere sahiptir.",
-    price: 320, compare_at_price: null, category_id: "2", stock_quantity: 10,
-    is_active: true, is_featured: true, weight: 200,
+    id: "2", name: "Kekik Yağı (50ml)", slug: "kekik-yagi",
+    description: "Doğal kekik yağı. Soğuk sıkım yöntemiyle elde edilmiştir.",
+    price: 120, compare_at_price: null, category_id: "2", category: "bitki",
+    stock_quantity: 40, is_active: true, is_featured: true, is_seasonal: false,
+    season_info: null, usage_info: "Yemeklere aromaterapi amaçlı kullanılır.", storage_info: "Serin ve karanlık ortamda saklayın.",
+    weight: 60, image_url: "/images/placeholder.jpg", created_by: null,
     created_at: new Date().toISOString(), updated_at: new Date().toISOString(),
-    category: { id: "2", name: "El İşi Ürünler", slug: "el-isi", description: null, image_url: null, sort_order: 2, created_at: "" },
-    images: [{ id: "2", product_id: "2", image_url: "/images/placeholder.jpg", alt_text: "Yün Şal", sort_order: 0, is_primary: true }],
+    category_rel: { id: "2", name: "Tıbbi Bitkiler", slug: "bitki", description: null, image_url: null, sort_order: 2, created_at: "" },
+    images: [{ id: "2", product_id: "2", image_url: "/images/placeholder.jpg", alt_text: "Kekik Yağı", sort_order: 0, is_primary: true }],
   },
   {
     id: "3", name: "Lavanta Sabunu (3'lü Set)", slug: "lavanta-sabunu-set",
     description: "El yapımı doğal lavanta sabunu seti. Cildinize doğanın armağanı.",
-    price: 180, compare_at_price: 220, category_id: "3", stock_quantity: 30,
-    is_active: true, is_featured: false, weight: 300,
+    price: 180, compare_at_price: 220, category_id: "3", category: "bitki",
+    stock_quantity: 30, is_active: true, is_featured: false, is_seasonal: false,
+    season_info: null, usage_info: null, storage_info: null,
+    weight: 300, image_url: "/images/placeholder.jpg", created_by: null,
     created_at: new Date().toISOString(), updated_at: new Date().toISOString(),
-    category: { id: "3", name: "Doğal Ürünler", slug: "dogal-urunler", description: null, image_url: null, sort_order: 3, created_at: "" },
+    category_rel: { id: "3", name: "Tıbbi Bitkiler", slug: "bitki", description: null, image_url: null, sort_order: 2, created_at: "" },
     images: [{ id: "3", product_id: "3", image_url: "/images/placeholder.jpg", alt_text: "Lavanta Sabunu", sort_order: 0, is_primary: true }],
   },
   {
-    id: "4", name: "Doğal Kurutulmuş Çiçek Buketi", slug: "kurutulmus-cicek-buketi",
-    description: "Ev dekorasyonu için doğal kurutulmuş çiçek buketi.",
-    price: 250, compare_at_price: null, category_id: "4", stock_quantity: 8,
-    is_active: true, is_featured: true, weight: 150,
-    created_at: new Date().toISOString(), updated_at: new Date().toISOString(),
-    category: { id: "4", name: "Hediyelik Ürünler", slug: "hediyelik", description: null, image_url: null, sort_order: 4, created_at: "" },
-    images: [{ id: "4", product_id: "4", image_url: "/images/placeholder.jpg", alt_text: "Çiçek Buketi", sort_order: 0, is_primary: true }],
-  },
-  {
-    id: "5", name: "Ev Yapımı Domates Sosu (720ml)", slug: "ev-yapimi-domates-sosu",
+    id: "4", name: "Ev Yapımı Domates Sosu (720ml)", slug: "ev-yapimi-domates-sosu",
     description: "Taze domateslerden hazırlanan katkısız domates sosu.",
-    price: 120, compare_at_price: null, category_id: "1", stock_quantity: 50,
-    is_active: true, is_featured: false, weight: 720,
+    price: 120, compare_at_price: null, category_id: "1", category: "gida",
+    stock_quantity: 50, is_active: true, is_featured: false, is_seasonal: true,
+    season_info: "Ağustos - Ekim", usage_info: "Makarna, pizza ve yemeklerde kullanılır.", storage_info: "Açıldıktan sonra buzdolabında saklayın.",
+    weight: 720, image_url: "/images/placeholder.jpg", created_by: null,
     created_at: new Date().toISOString(), updated_at: new Date().toISOString(),
-    category: { id: "1", name: "Gıda Ürünleri", slug: "gida", description: null, image_url: null, sort_order: 1, created_at: "" },
-    images: [{ id: "5", product_id: "5", image_url: "/images/placeholder.jpg", alt_text: "Domates Sosu", sort_order: 0, is_primary: true }],
+    category_rel: { id: "1", name: "Gıda Ürünleri", slug: "gida", description: null, image_url: null, sort_order: 1, created_at: "" },
+    images: [{ id: "4", product_id: "4", image_url: "/images/placeholder.jpg", alt_text: "Domates Sosu", sort_order: 0, is_primary: true }],
   },
   {
-    id: "6", name: "El Yapımı Seramik Kase", slug: "el-yapimi-seramik-kase",
-    description: "El yapımı dekoratif seramik kase. Mutfağınıza şıklık katın.",
-    price: 280, compare_at_price: 350, category_id: "2", stock_quantity: 5,
-    is_active: true, is_featured: false, weight: 400,
+    id: "5", name: "Zeytin Fidanı", slug: "zeytin-fidani",
+    description: "3 yaşında, sertifikalı zeytin fidanı. Gemlik çeşidi.",
+    price: 250, compare_at_price: null, category_id: "5", category: "fidan",
+    stock_quantity: 15, is_active: true, is_featured: true, is_seasonal: true,
+    season_info: "Şubat - Nisan", usage_info: "Bahçe veya tarla dikimi için uygundur.", storage_info: "Dikim zamanına kadar köklerini nemli tutun.",
+    weight: 2000, image_url: "/images/placeholder.jpg", created_by: null,
     created_at: new Date().toISOString(), updated_at: new Date().toISOString(),
-    category: { id: "2", name: "El İşi Ürünler", slug: "el-isi", description: null, image_url: null, sort_order: 2, created_at: "" },
-    images: [{ id: "6", product_id: "6", image_url: "/images/placeholder.jpg", alt_text: "Seramik Kase", sort_order: 0, is_primary: true }],
+    category_rel: { id: "5", name: "Fidan & Tohum", slug: "fidan", description: null, image_url: null, sort_order: 3, created_at: "" },
+    images: [{ id: "5", product_id: "5", image_url: "/images/placeholder.jpg", alt_text: "Zeytin Fidanı", sort_order: 0, is_primary: true }],
   },
   {
-    id: "7", name: "Balmumu Mum Seti", slug: "balmumu-mum-seti",
-    description: "Doğal balmumundan üretilmiş dekoratif mum seti.",
-    price: 195, compare_at_price: null, category_id: "4", stock_quantity: 15,
-    is_active: true, is_featured: false, weight: 250,
+    id: "6", name: "Defne Yaprağı (100g)", slug: "defne-yapragi",
+    description: "El toplama doğal defne yaprağı. Yemek ve çay yapımında kullanılır.",
+    price: 45, compare_at_price: null, category_id: "2", category: "bitki",
+    stock_quantity: 60, is_active: true, is_featured: false, is_seasonal: false,
+    season_info: null, usage_info: "Yemeklerde baharat, çay yapımında kullanılır.", storage_info: "Kuru ve serin ortamda saklayın.",
+    weight: 100, image_url: "/images/placeholder.jpg", created_by: null,
     created_at: new Date().toISOString(), updated_at: new Date().toISOString(),
-    category: { id: "4", name: "Hediyelik Ürünler", slug: "hediyelik", description: null, image_url: null, sort_order: 4, created_at: "" },
-    images: [{ id: "7", product_id: "7", image_url: "/images/placeholder.jpg", alt_text: "Balmumu Mum", sort_order: 0, is_primary: true }],
+    category_rel: { id: "2", name: "Tıbbi Bitkiler", slug: "bitki", description: null, image_url: null, sort_order: 2, created_at: "" },
+    images: [{ id: "6", product_id: "6", image_url: "/images/placeholder.jpg", alt_text: "Defne Yaprağı", sort_order: 0, is_primary: true }],
   },
   {
-    id: "8", name: "Defne Yaprağı Sabunu", slug: "defne-yapragi-sabunu",
-    description: "Geleneksel yöntemlerle üretilen doğal defne yaprağı sabunu.",
-    price: 85, compare_at_price: null, category_id: "3", stock_quantity: 40,
-    is_active: true, is_featured: false, weight: 150,
+    id: "7", name: "Ev Yapımı Erişte (500g)", slug: "ev-yapimi-eriste",
+    description: "Geleneksel yöntemlerle hazırlanan ev yapımı erişte.",
+    price: 85, compare_at_price: null, category_id: "1", category: "gida",
+    stock_quantity: 35, is_active: true, is_featured: false, is_seasonal: false,
+    season_info: null, usage_info: null, storage_info: "Kuru ve serin yerde saklayın.",
+    weight: 500, image_url: "/images/placeholder.jpg", created_by: null,
     created_at: new Date().toISOString(), updated_at: new Date().toISOString(),
-    category: { id: "3", name: "Doğal Ürünler", slug: "dogal-urunler", description: null, image_url: null, sort_order: 3, created_at: "" },
-    images: [{ id: "8", product_id: "8", image_url: "/images/placeholder.jpg", alt_text: "Defne Sabunu", sort_order: 0, is_primary: true }],
+    category_rel: { id: "1", name: "Gıda Ürünleri", slug: "gida", description: null, image_url: null, sort_order: 1, created_at: "" },
+    images: [{ id: "7", product_id: "7", image_url: "/images/placeholder.jpg", alt_text: "Erişte", sort_order: 0, is_primary: true }],
+  },
+  {
+    id: "8", name: "Limon Fidanı", slug: "limon-fidani",
+    description: "Meyer limon fidanı. Saksıda da yetişebilir.",
+    price: 180, compare_at_price: 220, category_id: "5", category: "fidan",
+    stock_quantity: 8, is_active: true, is_featured: false, is_seasonal: true,
+    season_info: "Mart - Mayıs", usage_info: "Saksı veya bahçeye dikilir.", storage_info: "Dondan koruyun.",
+    weight: 1500, image_url: "/images/placeholder.jpg", created_by: null,
+    created_at: new Date().toISOString(), updated_at: new Date().toISOString(),
+    category_rel: { id: "5", name: "Fidan & Tohum", slug: "fidan", description: null, image_url: null, sort_order: 3, created_at: "" },
+    images: [{ id: "8", product_id: "8", image_url: "/images/placeholder.jpg", alt_text: "Limon Fidanı", sort_order: 0, is_primary: true }],
   },
 ];
 
+const CATEGORY_FILTERS = [
+  { label: "Tümü", value: "all" },
+  { label: "🌿 Tıbbi Bitkiler", value: "bitki" },
+  { label: "🫙 Gıda Ürünleri", value: "gida" },
+  { label: "🌱 Fidan & Tohum", value: "fidan" },
+];
+
 export default function ProductsPage() {
+  const [activeCategory, setActiveCategory] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredProducts = useMemo(() => {
+    return DEMO_PRODUCTS.filter((product) => {
+      const matchesCategory = activeCategory === "all" || product.category === activeCategory;
+      const matchesSearch =
+        searchQuery === "" ||
+        product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        product.description?.toLowerCase().includes(searchQuery.toLowerCase());
+      return matchesCategory && matchesSearch;
+    });
+  }, [activeCategory, searchQuery]);
+
   return (
     <>
-      {/* Page Header */}
-      <section className="pt-28 pb-10 gradient-hero relative">
-        <div className="absolute inset-0 pattern-dots opacity-10" />
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Breadcrumb */}
-          <nav className="flex items-center gap-2 text-xs text-primary-200 mb-4">
-            <Link href="/" className="hover:text-white transition-colors">Ana Sayfa</Link>
-            <span>/</span>
-            <span className="text-white">Ürünler</span>
-          </nav>
-          <h1 className="text-3xl sm:text-4xl font-bold text-white mb-2">Ürünlerimiz</h1>
-          <p className="text-sm text-primary-100/80 max-w-lg">
-            El emeği ile üretilen doğal ve sağlıklı ürünlerimizi keşfedin.
-          </p>
-        </div>
-        {/* Wave */}
-        <div className="absolute bottom-0 left-0 right-0">
-          <svg viewBox="0 0 1440 40" className="w-full h-[30px] fill-background" preserveAspectRatio="none">
-            <path d="M0,20 C480,40 960,0 1440,25 L1440,40 L0,40 Z" />
-          </svg>
-        </div>
-      </section>
+      <PageHeader
+        title="Ürünlerimiz"
+        description="El emeği ile üretilen doğal ve sağlıklı ürünlerimizi keşfedin."
+        breadcrumbs={[
+          { label: "Ana Sayfa", href: "/" },
+          { label: "Ürünler" },
+        ]}
+      />
 
-      {/* Products Section */}
       <section className="py-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Filter Bar */}
-          <div className="flex flex-wrap items-center justify-between gap-4 mb-8 p-4 bg-white rounded-2xl border border-border">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8 p-4 bg-card rounded-2xl border border-earth-200">
+            {/* Categories */}
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-xs font-medium text-muted mr-1">Kategori:</span>
-              {["Tümü", "Gıda", "El İşi", "Doğal Ürünler", "Hediyelik"].map((cat) => (
+              {CATEGORY_FILTERS.map((cat) => (
                 <button
-                  key={cat}
+                  key={cat.value}
+                  onClick={() => setActiveCategory(cat.value)}
                   className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors cursor-pointer ${
-                    cat === "Tümü"
+                    activeCategory === cat.value
                       ? "bg-primary-700 text-white"
-                      : "text-muted hover:text-foreground hover:bg-earth-50"
+                      : "text-muted hover:text-foreground hover:bg-cream-100"
                   }`}
                 >
-                  {cat}
+                  {cat.label}
                 </button>
               ))}
             </div>
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-muted">{DEMO_PRODUCTS.length} ürün</span>
+
+            {/* Search */}
+            <div className="relative w-full sm:w-64">
+              <svg
+                className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              <input
+                type="text"
+                placeholder="Ürün ara..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-9 pr-4 py-2 text-sm rounded-lg border border-earth-200 bg-white placeholder:text-muted hover:border-earth-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 focus:outline-none transition-all"
+              />
             </div>
           </div>
 
+          {/* Result count */}
+          <p className="text-xs text-muted mb-4">{filteredProducts.length} ürün bulundu</p>
+
           {/* Product Grid */}
-          <ProductGrid products={DEMO_PRODUCTS} columns={4} />
+          <ProductGrid products={filteredProducts} columns={4} />
         </div>
       </section>
     </>

@@ -13,6 +13,9 @@ export interface Category {
   created_at: string;
 }
 
+// --- Product Category Type ---
+export type ProductCategory = 'bitki' | 'gida' | 'fidan';
+
 // --- Product ---
 export interface Product {
   id: string;
@@ -22,14 +25,21 @@ export interface Product {
   price: number;
   compare_at_price: number | null;
   category_id: string | null;
+  category: ProductCategory | null;
   stock_quantity: number;
   is_active: boolean;
   is_featured: boolean;
+  is_seasonal: boolean;
+  season_info: string | null;
+  usage_info: string | null;
+  storage_info: string | null;
   weight: number | null;
+  image_url: string | null;
+  created_by: string | null;
   created_at: string;
   updated_at: string;
   // Joined
-  category?: Category;
+  category_rel?: Category;
   images?: ProductImage[];
 }
 
@@ -97,7 +107,7 @@ export interface OrderItem {
 }
 
 // --- User Profile ---
-export type UserRole = "user" | "admin";
+export type UserRole = "customer" | "admin";
 
 export interface Profile {
   id: string;
@@ -106,6 +116,44 @@ export interface Profile {
   address: ShippingAddress | null;
   role: UserRole;
   created_at: string;
+}
+
+// --- Review ---
+export interface Review {
+  id: string;
+  product_id: string;
+  user_id: string;
+  rating: number;
+  comment: string | null;
+  created_at: string;
+  // Joined
+  product?: Product;
+  profile?: Profile;
+}
+
+// --- Newsletter ---
+export interface NewsletterSubscriber {
+  id: string;
+  email: string;
+  created_at: string;
+}
+
+// --- Blog Post ---
+export interface Post {
+  id: string;
+  title: string;
+  slug: string;
+  summary: string | null;
+  content: string;
+  cover_image: string | null;
+  category: string;
+  author: string;
+  read_time: number;
+  is_published: boolean;
+  published_at: string | null;
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
 }
 
 // --- UI Helpers ---

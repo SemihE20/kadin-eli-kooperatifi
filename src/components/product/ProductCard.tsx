@@ -32,9 +32,9 @@ export default function ProductCard({ product }: ProductCardProps) {
       className="group block"
       id={`product-${product.slug}`}
     >
-      <div className="bg-card rounded-2xl overflow-hidden border border-border hover:border-primary-200 hover:shadow-card transition-all duration-300">
+      <div className="bg-card rounded-2xl overflow-hidden border border-earth-200 hover:border-earth-300 hover:shadow-card transition-all duration-300">
         {/* Image Container */}
-        <div className="relative aspect-square overflow-hidden bg-earth-100">
+        <div className="relative aspect-square overflow-hidden bg-cream-100">
           <Image
             src={imageUrl}
             alt={product.name}
@@ -59,13 +59,18 @@ export default function ProductCard({ product }: ProductCardProps) {
                 ⭐ Öne Çıkan
               </Badge>
             )}
+            {product.is_seasonal && (
+              <Badge variant="warning" size="sm">
+                🌸 Mevsimlik
+              </Badge>
+            )}
           </div>
 
           {/* Quick Add Button */}
           {!isOutOfStock && (
             <button
               onClick={handleAddToCart}
-              className="absolute bottom-3 right-3 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-xl shadow-md flex items-center justify-center text-primary-700 opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300 hover:bg-primary-700 hover:text-white cursor-pointer"
+              className="absolute bottom-3 right-3 w-10 h-10 bg-cream-50/90 backdrop-blur-sm rounded-xl shadow-md flex items-center justify-center text-primary-700 opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300 hover:bg-primary-700 hover:text-white cursor-pointer"
               aria-label="Sepete ekle"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -77,12 +82,12 @@ export default function ProductCard({ product }: ProductCardProps) {
 
         {/* Content */}
         <div className="p-4">
-          {product.category && (
+          {product.category_rel && (
             <p className="text-[11px] text-muted font-medium uppercase tracking-wider mb-1">
-              {product.category.name}
+              {product.category_rel.name}
             </p>
           )}
-          <h3 className="text-sm font-semibold text-foreground group-hover:text-primary-700 transition-colors line-clamp-2 mb-2">
+          <h3 className="font-heading text-sm font-semibold text-foreground group-hover:text-primary-700 transition-colors line-clamp-2 mb-2">
             {product.name}
           </h3>
           <div className="flex items-center gap-2">

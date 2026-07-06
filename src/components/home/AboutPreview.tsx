@@ -3,7 +3,7 @@ import Image from "next/image";
 
 export default function AboutPreview() {
   return (
-    <section className="py-20 bg-white" id="about-preview">
+    <section className="py-20 bg-warmth texture-paper" id="about-preview">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           {/* Image Side */}
@@ -11,22 +11,22 @@ export default function AboutPreview() {
             <div className="relative aspect-[4/3] rounded-2xl overflow-hidden">
               <div className="absolute inset-0 gradient-hero opacity-90 flex items-center justify-center">
                 <div className="text-center text-white p-8">
-                  <div className="relative w-24 h-24 mx-auto mb-4 rounded-full overflow-hidden ring-4 ring-white/20">
+                  <div className="relative w-24 h-24 mx-auto mb-4 rounded-full overflow-hidden ring-4 ring-cream-300/20">
                     <Image
-                      src="/logo.jpeg"
+                      src="/logo.png"
                       alt="Gözler Kadıneli Kooperatifi"
                       fill
                       className="object-cover"
                     />
                   </div>
-                  <p className="text-3xl font-bold mb-2">Gözler</p>
-                  <p className="text-sm text-primary-200 tracking-widest uppercase">Kadıneli Kooperatifi</p>
+                  <p className="text-3xl font-heading font-bold mb-2">Gözler</p>
+                  <p className="text-sm text-cream-300 tracking-widest uppercase">Kadıneli Kooperatifi</p>
                 </div>
               </div>
             </div>
 
             {/* Decorative elements */}
-            <div className="absolute -bottom-4 -right-4 w-24 h-24 bg-cream-200 rounded-2xl -z-10" />
+            <div className="absolute -bottom-4 -right-4 w-24 h-24 bg-cream-300 rounded-2xl -z-10" />
             <div className="absolute -top-4 -left-4 w-16 h-16 bg-primary-100 rounded-xl -z-10" />
           </div>
 
@@ -35,9 +35,9 @@ export default function AboutPreview() {
             <span className="inline-block text-xs font-semibold text-primary-600 uppercase tracking-widest mb-2">
               Hikayemiz
             </span>
-            <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-4">
+            <h2 className="font-heading text-2xl sm:text-3xl font-bold text-foreground mb-4">
               Kadın Ellerinden{" "}
-              <span className="gradient-text">Doğaya ve Sofralarınıza</span>
+              <span className="gradient-text heading-accent">Doğaya ve Sofralarınıza</span>
             </h2>
             <p className="text-sm text-muted leading-relaxed mb-4">
               Gözler Kadıneli Kooperatifi, Bursa Mudanya Gözler Mahallesi&apos;nde 
@@ -60,7 +60,7 @@ export default function AboutPreview() {
               ].map((feature) => (
                 <div
                   key={feature.text}
-                  className="flex items-center gap-2.5 p-3 bg-earth-50 rounded-xl"
+                  className="flex items-center gap-2.5 p-3 bg-cream-100 rounded-xl border border-earth-200"
                 >
                   <span className="text-lg">{feature.icon}</span>
                   <span className="text-xs font-medium text-foreground">

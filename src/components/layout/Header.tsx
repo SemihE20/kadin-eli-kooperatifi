@@ -26,7 +26,7 @@ export default function Header() {
     <>
       <header
         className={`
-          fixed top-0 left-0 right-0 z-50 transition-all duration-300
+          fixed top-0 left-0 right-0 z-50 transition-all duration-500
           ${
             scrolled
               ? "glass shadow-soft py-2"
@@ -42,9 +42,9 @@ export default function Header() {
               className="flex items-center gap-3 group"
               id="header-logo"
             >
-              <div className="relative w-10 h-10 sm:w-12 sm:h-12 rounded-full overflow-hidden ring-2 ring-primary-200 group-hover:ring-primary-400 transition-all duration-300">
+              <div className="relative w-10 h-10 sm:w-12 sm:h-12 rounded-full overflow-hidden ring-2 ring-earth-200 group-hover:ring-primary-400 transition-all duration-300">
                 <Image
-                  src="/logo.jpeg"
+                  src="/logo.png"
                   alt="Gözler Kadıneli Kooperatifi"
                   fill
                   className="object-cover"
@@ -52,10 +52,10 @@ export default function Header() {
                 />
               </div>
               <div className="hidden sm:block">
-                <h1 className="text-sm font-bold text-primary-800 leading-tight">
+                <h1 className="text-sm font-heading font-bold text-primary-800 leading-tight tracking-tight">
                   Gözler
                 </h1>
-                <p className="text-[10px] text-primary-600 font-medium tracking-wide uppercase">
+                <p className="text-[10px] text-earth-600 font-medium tracking-wider uppercase">
                   Kadıneli Kooperatifi
                 </p>
               </div>
@@ -67,7 +67,7 @@ export default function Header() {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className="px-4 py-2 text-sm font-medium text-foreground/80 hover:text-primary-700 rounded-lg hover:bg-primary-50 transition-all duration-200"
+                  className="px-4 py-2 text-sm font-medium text-foreground/80 hover:text-primary-700 rounded-xl hover:bg-cream-100 transition-all duration-200"
                 >
                   {item.label}
                 </Link>
@@ -79,7 +79,7 @@ export default function Header() {
               {/* Cart Button */}
               <button
                 onClick={toggleCart}
-                className="relative p-2.5 rounded-xl text-foreground/70 hover:text-primary-700 hover:bg-primary-50 transition-all duration-200 cursor-pointer"
+                className="relative p-2.5 rounded-xl text-foreground/70 hover:text-primary-700 hover:bg-cream-100 transition-all duration-200 cursor-pointer"
                 aria-label="Sepet"
                 id="cart-button"
               >
@@ -106,7 +106,7 @@ export default function Header() {
               {/* User Menu */}
               <Link
                 href="/giris"
-                className="p-2.5 rounded-xl text-foreground/70 hover:text-primary-700 hover:bg-primary-50 transition-all duration-200"
+                className="p-2.5 rounded-xl text-foreground/70 hover:text-primary-700 hover:bg-cream-100 transition-all duration-200"
                 aria-label="Giriş Yap"
                 id="login-button"
               >
@@ -128,7 +128,7 @@ export default function Header() {
               {/* Mobile Menu Button */}
               <button
                 onClick={() => setMobileMenuOpen(true)}
-                className="md:hidden p-2.5 rounded-xl text-foreground/70 hover:text-primary-700 hover:bg-primary-50 transition-all duration-200 cursor-pointer"
+                className="md:hidden p-2.5 rounded-xl text-foreground/70 hover:text-primary-700 hover:bg-cream-100 transition-all duration-200 cursor-pointer"
                 aria-label="Menü"
                 id="mobile-menu-button"
               >

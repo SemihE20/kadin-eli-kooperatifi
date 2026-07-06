@@ -14,13 +14,20 @@ const DEMO_PRODUCTS: Product[] = [
     price: 450,
     compare_at_price: 520,
     category_id: "1",
+    category: "gida",
     stock_quantity: 25,
     is_active: true,
     is_featured: true,
+    is_seasonal: false,
+    season_info: null,
+    usage_info: null,
+    storage_info: null,
     weight: 850,
+    image_url: "/images/placeholder.jpg",
+    created_by: null,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
-    category: { id: "1", name: "Gıda Ürünleri", slug: "gida", description: null, image_url: null, sort_order: 1, created_at: "" },
+    category_rel: { id: "1", name: "Gıda Ürünleri", slug: "gida", description: null, image_url: null, sort_order: 1, created_at: "" },
     images: [{ id: "1", product_id: "1", image_url: "/images/placeholder.jpg", alt_text: "Çam Balı", sort_order: 0, is_primary: true }],
   },
   {
@@ -31,13 +38,20 @@ const DEMO_PRODUCTS: Product[] = [
     price: 320,
     compare_at_price: null,
     category_id: "2",
+    category: "gida",
     stock_quantity: 10,
     is_active: true,
     is_featured: true,
+    is_seasonal: false,
+    season_info: null,
+    usage_info: null,
+    storage_info: null,
     weight: 200,
+    image_url: "/images/placeholder.jpg",
+    created_by: null,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
-    category: { id: "2", name: "El İşi Ürünler", slug: "el-isi", description: null, image_url: null, sort_order: 2, created_at: "" },
+    category_rel: { id: "2", name: "El İşi Ürünler", slug: "el-isi", description: null, image_url: null, sort_order: 2, created_at: "" },
     images: [{ id: "2", product_id: "2", image_url: "/images/placeholder.jpg", alt_text: "Yün Şal", sort_order: 0, is_primary: true }],
   },
   {
@@ -48,13 +62,20 @@ const DEMO_PRODUCTS: Product[] = [
     price: 180,
     compare_at_price: 220,
     category_id: "3",
+    category: "bitki",
     stock_quantity: 30,
     is_active: true,
     is_featured: true,
+    is_seasonal: false,
+    season_info: null,
+    usage_info: null,
+    storage_info: null,
     weight: 300,
+    image_url: "/images/placeholder.jpg",
+    created_by: null,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
-    category: { id: "3", name: "Doğal Ürünler", slug: "dogal-urunler", description: null, image_url: null, sort_order: 3, created_at: "" },
+    category_rel: { id: "3", name: "Doğal Ürünler", slug: "dogal-urunler", description: null, image_url: null, sort_order: 3, created_at: "" },
     images: [{ id: "3", product_id: "3", image_url: "/images/placeholder.jpg", alt_text: "Lavanta Sabunu", sort_order: 0, is_primary: true }],
   },
   {
@@ -65,20 +86,27 @@ const DEMO_PRODUCTS: Product[] = [
     price: 250,
     compare_at_price: null,
     category_id: "4",
+    category: "bitki",
     stock_quantity: 8,
     is_active: true,
     is_featured: true,
+    is_seasonal: true,
+    season_info: "İlkbahar - Yaz",
+    usage_info: null,
+    storage_info: null,
     weight: 150,
+    image_url: "/images/placeholder.jpg",
+    created_by: null,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
-    category: { id: "4", name: "Hediyelik Ürünler", slug: "hediyelik", description: null, image_url: null, sort_order: 4, created_at: "" },
+    category_rel: { id: "4", name: "Hediyelik Ürünler", slug: "hediyelik", description: null, image_url: null, sort_order: 4, created_at: "" },
     images: [{ id: "4", product_id: "4", image_url: "/images/placeholder.jpg", alt_text: "Çiçek Buketi", sort_order: 0, is_primary: true }],
   },
 ];
 
 export default function FeaturedProducts() {
   return (
-    <section className="py-20 bg-white" id="featured-products">
+    <section className="py-20 bg-cream-50 texture-linen" id="featured-products">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-10">
@@ -86,7 +114,7 @@ export default function FeaturedProducts() {
             <span className="inline-block text-xs font-semibold text-primary-600 uppercase tracking-widest mb-2">
               Öne Çıkanlar
             </span>
-            <h2 className="text-2xl sm:text-3xl font-bold text-foreground">
+            <h2 className="font-heading text-2xl sm:text-3xl font-bold text-foreground">
               En Beğenilen Ürünler
             </h2>
           </div>

@@ -9,9 +9,10 @@ export default function WhatsAppCTA() {
     <section className="py-16" id="whatsapp-cta">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="relative overflow-hidden rounded-3xl gradient-hero p-8 sm:p-12">
-          {/* Decorative */}
-          <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/3" />
-          <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/4" />
+          {/* Botanical Decorative */}
+          <div className="absolute inset-0 pattern-botanical opacity-40" />
+          <div className="absolute top-0 right-0 w-64 h-64 bg-cream-300/5 rounded-full -translate-y-1/2 translate-x-1/3" />
+          <div className="absolute bottom-0 left-0 w-48 h-48 bg-cream-300/5 rounded-full translate-y-1/2 -translate-x-1/4" />
 
           <div className="relative z-10 flex flex-col sm:flex-row items-center gap-6 sm:gap-8">
             {/* WhatsApp Icon */}
@@ -23,10 +24,10 @@ export default function WhatsAppCTA() {
 
             {/* Text */}
             <div className="flex-1 text-center sm:text-left">
-              <h3 className="text-xl sm:text-2xl font-bold text-white mb-2">
+              <h3 className="font-heading text-xl sm:text-2xl font-bold text-white mb-2">
                 Bize WhatsApp&apos;tan Ulaşın
               </h3>
-              <p className="text-sm text-primary-100/80 max-w-md">
+              <p className="text-sm text-cream-200/70 max-w-md">
                 Ürünler hakkında sorularınız mı var? Sipariş vermek mi istiyorsunuz?
                 WhatsApp üzerinden hemen bize yazın!
               </p>

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import Image from "next/image";
+import PageHeader from "@/components/layout/PageHeader";
 
 export const metadata: Metadata = {
   title: "Hakkımızda",
@@ -10,36 +10,23 @@ export const metadata: Metadata = {
 export default function AboutPage() {
   return (
     <>
-      {/* Page Header */}
-      <section className="pt-28 pb-10 gradient-hero relative">
-        <div className="absolute inset-0 pattern-dots opacity-10" />
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <nav className="flex items-center gap-2 text-xs text-primary-200 mb-4">
-            <Link href="/" className="hover:text-white transition-colors">Ana Sayfa</Link>
-            <span>/</span>
-            <span className="text-white">Hakkımızda</span>
-          </nav>
-          <h1 className="text-3xl sm:text-4xl font-bold text-white mb-2">Hakkımızda</h1>
-          <p className="text-sm text-primary-100/80 max-w-lg">
-            Gözler Kadıneli Kooperatifi&apos;nin hikayesini keşfedin.
-          </p>
-        </div>
-        <div className="absolute bottom-0 left-0 right-0">
-          <svg viewBox="0 0 1440 40" className="w-full h-[30px] fill-background" preserveAspectRatio="none">
-            <path d="M0,20 C480,40 960,0 1440,25 L1440,40 L0,40 Z" />
-          </svg>
-        </div>
-      </section>
+      <PageHeader
+        title="Hakkımızda"
+        description="Gözler Kadıneli Kooperatifi'nin hikayesini keşfedin."
+        breadcrumbs={[
+          { label: "Ana Sayfa", href: "/" },
+          { label: "Hakkımızda" },
+        ]}
+      />
 
-      {/* Content */}
-      <section className="py-16">
+      {/* Story */}
+      <section className="py-16 texture-paper">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Story */}
           <div className="text-center mb-16">
-            <div className="relative w-28 h-28 mx-auto mb-6 rounded-full overflow-hidden ring-4 ring-primary-100">
-              <Image src="/logo.jpeg" alt="Gözler Kadıneli Kooperatifi" fill className="object-cover" />
+            <div className="relative w-28 h-28 mx-auto mb-6 rounded-full overflow-hidden ring-4 ring-earth-200">
+              <Image src="/logo.png" alt="Gözler Kadıneli Kooperatifi" fill className="object-cover" />
             </div>
-            <h2 className="text-2xl font-bold text-foreground mb-4">Hikayemiz</h2>
+            <h2 className="font-heading text-2xl font-bold text-foreground mb-4">Hikayemiz</h2>
             <p className="text-sm text-muted leading-relaxed max-w-2xl mx-auto mb-4">
               Gözler Kadıneli Kooperatifi, Bursa&apos;nın Mudanya ilçesine bağlı Gözler Mahallesi&apos;nde 
               kadınların el emeklerini değerlendirmek, ekonomik bağımsızlıklarını güçlendirmek ve 
@@ -51,8 +38,82 @@ export default function AboutPage() {
               katkısız ürünlere ulaşmasını sağlamaktadır.
             </p>
           </div>
+        </div>
+      </section>
 
-          {/* Values */}
+      {/* Kadın İstihdamı Vurgusu */}
+      <section className="py-16 bg-cream-50">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <span className="inline-block text-xs font-semibold text-primary-600 uppercase tracking-widest mb-2">
+              Kadın İstihdamı
+            </span>
+            <h2 className="font-heading text-2xl sm:text-3xl font-bold text-foreground mb-3">
+              Kadın Emeğiyle Güçlenen Toplum
+            </h2>
+            <p className="text-sm text-muted max-w-2xl mx-auto leading-relaxed">
+              Kooperatifimiz, kırsal bölgedeki kadınlara ekonomik bağımsızlık kazandırarak 
+              toplumsal dönüşüme katkıda bulunuyor.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-12">
+            {[
+              {
+                icon: "👩‍🌾",
+                value: "50+",
+                label: "Üretici Kadın",
+                desc: "Kooperatifimizde aktif olarak üreten kadın sayısı",
+              },
+              {
+                icon: "💪",
+                value: "%100",
+                label: "Kadın Yönetimi",
+                desc: "Kooperatifin yönetim kurulunun tamamı kadınlardan oluşur",
+              },
+              {
+                icon: "🌟",
+                value: "7/24",
+                label: "Destek",
+                desc: "Üretici kadınlarımıza sürekli eğitim ve mentorluk desteği",
+              },
+            ].map((stat) => (
+              <div
+                key={stat.label}
+                className="text-center p-6 bg-card rounded-2xl border border-earth-200 hover:shadow-card transition-all"
+              >
+                <span className="text-3xl mb-3 block">{stat.icon}</span>
+                <p className="text-2xl font-heading font-bold text-primary-700 mb-1">{stat.value}</p>
+                <p className="text-sm font-semibold text-foreground mb-1">{stat.label}</p>
+                <p className="text-xs text-muted">{stat.desc}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="bg-card rounded-2xl border border-earth-200 p-6 sm:p-8">
+            <h3 className="font-heading text-lg font-bold text-foreground mb-4">
+              🌿 Kadın Ellerinden Doğaya
+            </h3>
+            <div className="space-y-3 text-sm text-muted leading-relaxed">
+              <p>
+                Kırsal bölgelerde kadınlar, geleneksel bilgi ve becerilerin taşıyıcılarıdır. 
+                Tıbbi bitki toplama, gıda üretimi ve fidan yetiştirme konusunda nesiller boyu 
+                aktarılan bu bilgi birikimini korumak ve ekonomik değere dönüştürmek en büyük 
+                amacımızdır.
+              </p>
+              <p>
+                Her bir ürünümüz, bir kadının emeği, sabri ve sevgisiyle hazırlanmaktadır. 
+                Kooperatifimiz sayesinde kadınlarımız hem aile ekonomisine katkıda bulunuyor 
+                hem de toplum içinde güçlenen bireyler olarak var oluyorlar.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Values */}
+      <section className="py-16">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-16">
             {[
               {
@@ -78,30 +139,33 @@ export default function AboutPage() {
             ].map((item) => (
               <div
                 key={item.title}
-                className="p-6 bg-white rounded-2xl border border-border hover:shadow-card transition-all duration-300"
+                className="p-6 bg-card rounded-2xl border border-earth-200 hover:shadow-card transition-all duration-300"
               >
                 <span className="text-3xl mb-3 block">{item.icon}</span>
-                <h3 className="text-base font-semibold text-foreground mb-2">{item.title}</h3>
+                <h3 className="font-heading text-base font-semibold text-foreground mb-2">{item.title}</h3>
                 <p className="text-sm text-muted leading-relaxed">{item.desc}</p>
               </div>
             ))}
           </div>
 
           {/* Stats */}
-          <div className="gradient-hero rounded-2xl p-8 sm:p-10 text-center">
-            <h3 className="text-xl font-bold text-white mb-8">Rakamlarla Biz</h3>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
-              {[
-                { value: "50+", label: "Üretici Kadın" },
-                { value: "150+", label: "El Yapımı Ürün" },
-                { value: "1000+", label: "Mutlu Müşteri" },
-                { value: "4", label: "Ürün Kategorisi" },
-              ].map((stat) => (
-                <div key={stat.label}>
-                  <p className="text-3xl font-bold text-white mb-1">{stat.value}</p>
-                  <p className="text-xs text-primary-200">{stat.label}</p>
-                </div>
-              ))}
+          <div className="gradient-hero rounded-2xl p-8 sm:p-10 text-center relative overflow-hidden">
+            <div className="absolute inset-0 pattern-botanical opacity-30" />
+            <div className="relative z-10">
+              <h3 className="font-heading text-xl font-bold text-white mb-8">Rakamlarla Biz</h3>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
+                {[
+                  { value: "50+", label: "Üretici Kadın" },
+                  { value: "150+", label: "El Yapımı Ürün" },
+                  { value: "1000+", label: "Mutlu Müşteri" },
+                  { value: "3", label: "Ürün Kategorisi" },
+                ].map((stat) => (
+                  <div key={stat.label}>
+                    <p className="text-3xl font-heading font-bold text-white mb-1">{stat.value}</p>
+                    <p className="text-xs text-cream-300/70">{stat.label}</p>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>

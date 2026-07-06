@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import PageHeader from "@/components/layout/PageHeader";
 import { useCartStore } from "@/store/cart";
 import { formatPrice, calculateShipping, getPrimaryImage } from "@/lib/utils";
 import { FREE_SHIPPING_THRESHOLD } from "@/lib/constants";
@@ -15,23 +16,13 @@ export default function CartPage() {
 
   return (
     <>
-      {/* Page Header */}
-      <section className="pt-28 pb-10 gradient-hero relative">
-        <div className="absolute inset-0 pattern-dots opacity-10" />
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <nav className="flex items-center gap-2 text-xs text-primary-200 mb-4">
-            <Link href="/" className="hover:text-white transition-colors">Ana Sayfa</Link>
-            <span>/</span>
-            <span className="text-white">Sepet</span>
-          </nav>
-          <h1 className="text-3xl sm:text-4xl font-bold text-white">Alışveriş Sepeti</h1>
-        </div>
-        <div className="absolute bottom-0 left-0 right-0">
-          <svg viewBox="0 0 1440 40" className="w-full h-[30px] fill-background" preserveAspectRatio="none">
-            <path d="M0,20 C480,40 960,0 1440,25 L1440,40 L0,40 Z" />
-          </svg>
-        </div>
-      </section>
+      <PageHeader
+        title="Alışveriş Sepeti"
+        breadcrumbs={[
+          { label: "Ana Sayfa", href: "/" },
+          { label: "Sepet" },
+        ]}
+      />
 
       {/* Cart Content */}
       <section className="py-10">
@@ -43,7 +34,7 @@ export default function CartPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                 </svg>
               </div>
-              <h2 className="text-lg font-semibold text-foreground mb-2">Sepetiniz boş</h2>
+              <h2 className="font-heading text-lg font-semibold text-foreground mb-2">Sepetiniz boş</h2>
               <p className="text-sm text-muted mb-6">Hemen alışverişe başlayın!</p>
               <Link href="/urunler">
                 <Button>Ürünlere Göz At</Button>
@@ -80,8 +71,8 @@ export default function CartPage() {
                         <Link href={`/urunler/${item.product.slug}`} className="text-sm font-medium text-foreground hover:text-primary-700 transition-colors line-clamp-2">
                           {item.product.name}
                         </Link>
-                        {item.product.category && (
-                          <p className="text-[11px] text-muted mt-0.5">{item.product.category.name}</p>
+                        {item.product.category_rel?.name && (
+                          <p className="text-[11px] text-muted mt-0.5">{item.product.category_rel.name}</p>
                         )}
                         <button
                           onClick={() => removeItem(item.product.id)}
@@ -148,7 +139,7 @@ export default function CartPage() {
               {/* Order Summary */}
               <div className="lg:col-span-1">
                 <div className="sticky top-24 bg-white rounded-2xl border border-border p-6">
-                  <h3 className="text-base font-semibold text-foreground mb-4">Sipariş Özeti</h3>
+                  <h3 className="font-heading text-base font-semibold text-foreground mb-4">Sipariş Özeti</h3>
 
                   {/* Free shipping progress */}
                   {subtotal < FREE_SHIPPING_THRESHOLD && (

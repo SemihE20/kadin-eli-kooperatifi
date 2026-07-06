@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import PageHeader from "@/components/layout/PageHeader";
 import { useCartStore } from "@/store/cart";
 import { formatPrice, calculateShipping, generateOrderNumber, generateOrderWhatsAppMessage } from "@/lib/utils";
 import { PAYMENT_METHODS, BANK_INFO, WHATSAPP_BASE_URL, WHATSAPP_NUMBER } from "@/lib/constants";
@@ -57,38 +58,36 @@ export default function OrderPage() {
   if (items.length === 0 && !orderCompleted) {
     return (
       <>
-        <section className="pt-28 pb-10 gradient-hero relative">
-          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h1 className="text-3xl font-bold text-white">Sipariş</h1>
-          </div>
-          <div className="absolute bottom-0 left-0 right-0">
-            <svg viewBox="0 0 1440 40" className="w-full h-[30px] fill-background" preserveAspectRatio="none">
-              <path d="M0,20 C480,40 960,0 1440,25 L1440,40 L0,40 Z" />
-            </svg>
-          </div>
-        </section>
+        <PageHeader
+          title="Sipariş"
+          breadcrumbs={[
+            { label: "Ana Sayfa", href: "/" },
+            { label: "Sepet", href: "/sepet" },
+            { label: "Sipariş" },
+          ]}
+        />
         <div className="flex flex-col items-center justify-center py-20 text-center">
-          <p className="text-sm text-muted mb-4">Sepetinizde ürün bulunmuyor.</p>
+          <div className="w-20 h-20 bg-earth-100 rounded-full flex items-center justify-center mb-4">
+            <span className="text-3xl">🛒</span>
+          </div>
+          <h2 className="font-heading text-lg font-semibold text-foreground mb-2">Sepetiniz boş</h2>
+          <p className="text-sm text-muted mb-6">Sipariş vermek için önce ürün eklemelisiniz.</p>
           <Link href="/urunler"><Button>Alışverişe Başla</Button></Link>
         </div>
       </>
     );
   }
 
-  // Order Completed State
   if (orderCompleted) {
     return (
       <>
-        <section className="pt-28 pb-10 gradient-hero relative">
-          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h1 className="text-3xl font-bold text-white">Sipariş Alındı ✓</h1>
-          </div>
-          <div className="absolute bottom-0 left-0 right-0">
-            <svg viewBox="0 0 1440 40" className="w-full h-[30px] fill-background" preserveAspectRatio="none">
-              <path d="M0,20 C480,40 960,0 1440,25 L1440,40 L0,40 Z" />
-            </svg>
-          </div>
-        </section>
+        <PageHeader
+          title="Sipariş Alındı"
+          breadcrumbs={[
+            { label: "Ana Sayfa", href: "/" },
+            { label: "Sipariş" },
+          ]}
+        />
         <section className="py-16">
           <div className="max-w-lg mx-auto px-4 text-center">
             <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -96,13 +95,13 @@ export default function OrderPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
             </div>
-            <h2 className="text-2xl font-bold text-foreground mb-2">Siparişiniz Alındı!</h2>
+            <h2 className="font-heading text-2xl font-bold text-foreground mb-2">Siparişiniz Alındı!</h2>
             <p className="text-sm text-muted mb-2">Sipariş Numaranız:</p>
             <p className="text-lg font-bold text-primary-700 mb-6 bg-primary-50 inline-block px-4 py-2 rounded-xl">{orderNumber}</p>
 
             {paymentMethod === "havale_eft" && (
               <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6 text-left">
-                <h3 className="text-sm font-semibold text-amber-800 mb-2">💳 Havale/EFT Bilgileri</h3>
+                <h3 className="font-heading text-sm font-semibold text-amber-800 mb-2">💳 Havale/EFT Bilgileri</h3>
                 <div className="space-y-1 text-xs text-amber-700">
                   <p><strong>Banka:</strong> {BANK_INFO.bankName}</p>
                   <p><strong>Hesap Sahibi:</strong> {BANK_INFO.accountHolder}</p>
@@ -135,25 +134,14 @@ export default function OrderPage() {
 
   return (
     <>
-      {/* Page Header */}
-      <section className="pt-28 pb-10 gradient-hero relative">
-        <div className="absolute inset-0 pattern-dots opacity-10" />
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <nav className="flex items-center gap-2 text-xs text-primary-200 mb-4">
-            <Link href="/" className="hover:text-white transition-colors">Ana Sayfa</Link>
-            <span>/</span>
-            <Link href="/sepet" className="hover:text-white transition-colors">Sepet</Link>
-            <span>/</span>
-            <span className="text-white">Sipariş</span>
-          </nav>
-          <h1 className="text-3xl font-bold text-white">Siparişi Tamamla</h1>
-        </div>
-        <div className="absolute bottom-0 left-0 right-0">
-          <svg viewBox="0 0 1440 40" className="w-full h-[30px] fill-background" preserveAspectRatio="none">
-            <path d="M0,20 C480,40 960,0 1440,25 L1440,40 L0,40 Z" />
-          </svg>
-        </div>
-      </section>
+      <PageHeader
+        title="Siparişi Tamamla"
+        breadcrumbs={[
+          { label: "Ana Sayfa", href: "/" },
+          { label: "Sepet", href: "/sepet" },
+          { label: "Sipariş" },
+        ]}
+      />
 
       <section className="py-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -162,7 +150,7 @@ export default function OrderPage() {
             <div className="lg:col-span-2 space-y-6">
               {/* Shipping Address */}
               <div className="bg-white rounded-2xl border border-border p-6">
-                <h2 className="text-base font-semibold text-foreground mb-4 flex items-center gap-2">
+                <h2 className="font-heading text-base font-semibold text-foreground mb-4 flex items-center gap-2">
                   <span className="w-6 h-6 bg-primary-700 text-white text-xs font-bold rounded-full flex items-center justify-center">1</span>
                   Teslimat Adresi
                 </h2>
@@ -188,7 +176,7 @@ export default function OrderPage() {
 
               {/* Payment Method */}
               <div className="bg-white rounded-2xl border border-border p-6">
-                <h2 className="text-base font-semibold text-foreground mb-4 flex items-center gap-2">
+                <h2 className="font-heading text-base font-semibold text-foreground mb-4 flex items-center gap-2">
                   <span className="w-6 h-6 bg-primary-700 text-white text-xs font-bold rounded-full flex items-center justify-center">2</span>
                   Ödeme Yöntemi
                 </h2>
@@ -222,7 +210,7 @@ export default function OrderPage() {
 
               {/* Notes */}
               <div className="bg-white rounded-2xl border border-border p-6">
-                <h2 className="text-base font-semibold text-foreground mb-4 flex items-center gap-2">
+                <h2 className="font-heading text-base font-semibold text-foreground mb-4 flex items-center gap-2">
                   <span className="w-6 h-6 bg-primary-700 text-white text-xs font-bold rounded-full flex items-center justify-center">3</span>
                   Sipariş Notu (Opsiyonel)
                 </h2>
@@ -240,7 +228,7 @@ export default function OrderPage() {
             {/* Order Summary */}
             <div className="lg:col-span-1">
               <div className="sticky top-24 bg-white rounded-2xl border border-border p-6">
-                <h3 className="text-base font-semibold text-foreground mb-4">Sipariş Özeti</h3>
+                <h3 className="font-heading text-base font-semibold text-foreground mb-4">Sipariş Özeti</h3>
 
                 <div className="space-y-3 mb-4">
                   {items.map((item) => (
