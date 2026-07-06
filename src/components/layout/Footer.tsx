@@ -88,18 +88,20 @@ export default function Footer() {
               Kategoriler
             </h3>
             <ul className="space-y-2.5">
-              {["Tıbbi Bitkiler", "Gıda Ürünleri", "Fidan & Tohum", "Doğal Ürünler"].map(
-                (cat) => (
-                  <li key={cat}>
-                    <Link
-                      href={`/urunler`}
-                      className="text-sm text-earth-400 hover:text-cream-200 transition-colors duration-200"
-                    >
-                      {cat}
-                    </Link>
-                  </li>
-                )
-              )}
+              {[
+                { label: "Tıbbi ve Aromatik Bitkiler", slug: "bitki" },
+                { label: "Gıda Ürünleri", slug: "gida" },
+                { label: "Fidan ve Tohum", slug: "fidan" },
+              ].map((cat) => (
+                <li key={cat.slug}>
+                  <Link
+                    href={`/urunler?kategori=${cat.slug}`}
+                    className="text-sm text-earth-400 hover:text-cream-200 transition-colors duration-200"
+                  >
+                    {cat.label}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 

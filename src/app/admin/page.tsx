@@ -1,20 +1,18 @@
+"use client";
+
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
+import { createClient } from "@/lib/supabase/client";
 import { formatPrice } from "@/lib/utils";
 
-const STATS = [
-  { label: "Toplam Sipariş", value: "47", icon: "📦", change: "+12%", href: "/admin/siparisler" },
-  { label: "Aylık Gelir", value: formatPrice(12450), icon: "💰", change: "+8%", href: "/admin/siparisler" },
-  { label: "Aktif Ürün", value: "24", icon: "🌿", change: "+3", href: "/admin/urunler" },
-  { label: "Kayıtlı Kullanıcı", value: "138", icon: "👥", change: "+21", href: "/admin/kullanicilar" },
-];
-
-const RECENT_ORDERS = [
-  { id: "o1", number: "GK250706-0042", customer: "Ayşe Yılmaz", total: 625, status: "beklemede", date: "2025-07-06" },
-  { id: "o2", number: "GK250705-0041", customer: "Mehmet Kaya", total: 180, status: "onaylandi", date: "2025-07-05" },
-  { id: "o3", number: "GK250704-0040", customer: "Fatma Şahin", total: 950, status: "kargoda", date: "2025-07-04" },
-  { id: "o4", number: "GK250703-0039", customer: "Ali Demir", total: 250, status: "teslim_edildi", date: "2025-07-03" },
-  { id: "o5", number: "GK250702-0038", customer: "Zeynep Çelik", total: 340, status: "teslim_edildi", date: "2025-07-02" },
-];
+interface RecentOrder {
+  id: string;
+  order_number: string;
+  total: number;
+  status: string;
+  created_at: string;
+  shipping_address: { full_name?: string } | null;
+}
 
 const STATUS_LABELS: Record<string, { label: string; color: string }> = {
   beklemede: { label: "Beklemede", color: "bg-amber-100 text-amber-700" },
@@ -32,6 +30,66 @@ const QUICK_LINKS = [
 ];
 
 export default function AdminDashboard() {
+  const [loading, setLoading] = useState(true);
+  const [orderCount, setOrderCount] = useState(0);
+  const [monthlyRevenue, setMonthlyRevenue] = useState(0);
+  const [activeProductCount, setActiveProductCount] = useState(0);
+  const [userCount, setUserCount] = useState(0);
+  const [newOrdersThisMonth, setNewOrdersThisMonth] = useState(0);
+  const [newUsersThisMonth, setNewUsersThisMonth] = useState(0);
+  const [recentOrders, setRecentOrders] = useState<RecentOrder[]>([]);
+
+  const supabase = createClient();
+
+  const fetchDashboard = useCallback(async () => {
+    setLoading(true);
+
+    const monthStart = new Date();
+    monthStart.setDate(1);
+    monthStart.setHours(0, 0, 0, 0);
+    const monthStartIso = monthStart.toISOString();
+
+    const [
+      { count: orders },
+      { count: activeProducts },
+      { count: users },
+      { count: newUsers },
+      { data: monthOrders },
+      { data: recent },
+    ] = await Promise.all([
+      supabase.from("orders").select("*", { count: "exact", head: true }),
+      supabase.from("products").select("*", { count: "exact", head: true }).eq("is_active", true),
+      supabase.from("profiles").select("*", { count: "exact", head: true }),
+      supabase.from("profiles").select("*", { count: "exact", head: true }).gte("created_at", monthStartIso),
+      supabase.from("orders").select("total").gte("created_at", monthStartIso),
+      supabase
+        .from("orders")
+        .select("id, order_number, total, status, created_at, shipping_address")
+        .order("created_at", { ascending: false })
+        .limit(5),
+    ]);
+
+    setOrderCount(orders ?? 0);
+    setActiveProductCount(activeProducts ?? 0);
+    setUserCount(users ?? 0);
+    setNewUsersThisMonth(newUsers ?? 0);
+    setNewOrdersThisMonth(monthOrders?.length ?? 0);
+    setMonthlyRevenue((monthOrders ?? []).reduce((sum, o) => sum + Number(o.total), 0));
+    setRecentOrders((recent as RecentOrder[]) ?? []);
+    setLoading(false);
+  }, [supabase]);
+
+  useEffect(() => {
+    fetchDashboard();
+  }, [fetchDashboard]);
+
+  const STATS = [
+    { label: "Toplam Sipariş", value: String(orderCount), icon: "📦", href: "/admin/siparisler" },
+    { label: "Aylık Gelir", value: formatPrice(monthlyRevenue), icon: "💰", href: "/admin/siparisler" },
+    { label: "Aktif Ürün", value: String(activeProductCount), icon: "🌿", href: "/admin/urunler" },
+    { label: "Kayıtlı Kullanıcı", value: String(userCount), icon: "👥", href: "/admin/kullanicilar" },
+  ];
+
   return (
     <div className="p-6 space-y-8">
       <div>
@@ -49,11 +107,8 @@ export default function AdminDashboard() {
           >
             <div className="flex items-center justify-between mb-3">
               <span className="text-2xl">{stat.icon}</span>
-              <span className="text-xs font-medium text-green-600 bg-green-50 px-2 py-0.5 rounded-full">
-                {stat.change}
-              </span>
             </div>
-            <p className="text-2xl font-bold text-gray-900 mb-0.5">{stat.value}</p>
+            <p className="text-2xl font-bold text-gray-900 mb-0.5">{loading ? "…" : stat.value}</p>
             <p className="text-xs text-gray-500 group-hover:text-primary-600 transition-colors">{stat.label}</p>
           </Link>
         ))}
@@ -69,34 +124,48 @@ export default function AdminDashboard() {
             </Link>
           </div>
           <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="text-xs text-gray-500 uppercase tracking-wider border-b border-gray-100">
-                  <th className="px-5 py-3 text-left font-medium">Sipariş No</th>
-                  <th className="px-5 py-3 text-left font-medium">Müşteri</th>
-                  <th className="px-5 py-3 text-left font-medium">Tarih</th>
-                  <th className="px-5 py-3 text-left font-medium">Durum</th>
-                  <th className="px-5 py-3 text-right font-medium">Tutar</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-50">
-                {RECENT_ORDERS.map((order) => (
-                  <tr key={order.id} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-5 py-3 text-sm font-mono text-gray-700">{order.number}</td>
-                    <td className="px-5 py-3 text-sm text-gray-700">{order.customer}</td>
-                    <td className="px-5 py-3 text-xs text-gray-500">{order.date}</td>
-                    <td className="px-5 py-3">
-                      <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_LABELS[order.status].color}`}>
-                        {STATUS_LABELS[order.status].label}
-                      </span>
-                    </td>
-                    <td className="px-5 py-3 text-sm font-semibold text-right text-primary-700">
-                      {formatPrice(order.total)}
-                    </td>
+            {loading ? (
+              <div className="text-center py-12 text-gray-400">
+                <p className="text-sm">Yükleniyor...</p>
+              </div>
+            ) : recentOrders.length === 0 ? (
+              <div className="text-center py-12 text-gray-400">
+                <p className="text-sm">Henüz sipariş yok.</p>
+              </div>
+            ) : (
+              <table className="w-full">
+                <thead>
+                  <tr className="text-xs text-gray-500 uppercase tracking-wider border-b border-gray-100">
+                    <th className="px-5 py-3 text-left font-medium">Sipariş No</th>
+                    <th className="px-5 py-3 text-left font-medium">Müşteri</th>
+                    <th className="px-5 py-3 text-left font-medium">Tarih</th>
+                    <th className="px-5 py-3 text-left font-medium">Durum</th>
+                    <th className="px-5 py-3 text-right font-medium">Tutar</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-gray-50">
+                  {recentOrders.map((order) => (
+                    <tr key={order.id} className="hover:bg-gray-50 transition-colors">
+                      <td className="px-5 py-3 text-sm font-mono text-gray-700">{order.order_number}</td>
+                      <td className="px-5 py-3 text-sm text-gray-700">
+                        {order.shipping_address?.full_name ?? "—"}
+                      </td>
+                      <td className="px-5 py-3 text-xs text-gray-500">
+                        {new Date(order.created_at).toLocaleDateString("tr-TR")}
+                      </td>
+                      <td className="px-5 py-3">
+                        <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_LABELS[order.status]?.color ?? "bg-gray-100 text-gray-600"}`}>
+                          {STATUS_LABELS[order.status]?.label ?? order.status}
+                        </span>
+                      </td>
+                      <td className="px-5 py-3 text-sm font-semibold text-right text-primary-700">
+                        {formatPrice(order.total)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
           </div>
         </div>
 
@@ -119,7 +188,9 @@ export default function AdminDashboard() {
           <div className="mt-6 p-4 bg-primary-50 rounded-xl border border-primary-200">
             <p className="text-xs font-bold text-primary-800 mb-1">📊 Bu Ay</p>
             <p className="text-xs text-primary-700 leading-relaxed">
-              15 yeni sipariş, 3 yeni kullanıcı kayıt oldu. En çok satan ürün: Doğal Çam Balı.
+              {loading
+                ? "Yükleniyor..."
+                : `${newOrdersThisMonth} yeni sipariş, ${newUsersThisMonth} yeni kullanıcı kayıt oldu.`}
             </p>
           </div>
         </div>

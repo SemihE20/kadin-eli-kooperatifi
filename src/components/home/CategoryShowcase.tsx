@@ -1,21 +1,23 @@
 import Link from "next/link";
-import { CATEGORIES } from "@/lib/constants";
+import type { Category } from "@/types";
 
-export default function CategoryShowcase() {
-  const categoryImages: Record<string, string> = {
-    gida: "🫙",
-    "el-isi": "🧶",
-    "dogal-urunler": "🌿",
-    hediyelik: "🎁",
-  };
+interface CategoryShowcaseProps {
+  categories: Category[];
+}
 
-  const categoryGradients: Record<string, string> = {
-    gida: "from-cream-100 to-cream-200 hover:from-cream-200 hover:to-cream-300",
-    "el-isi": "from-earth-50 to-cream-100 hover:from-earth-100 hover:to-cream-200",
-    "dogal-urunler": "from-primary-50 to-cream-50 hover:from-primary-100 hover:to-cream-100",
-    hediyelik: "from-cream-50 to-earth-50 hover:from-cream-100 hover:to-earth-100",
-  };
+const CATEGORY_ICONS: Record<string, string> = {
+  bitki: "🌿",
+  gida: "🫙",
+  fidan: "🌱",
+};
 
+const CATEGORY_GRADIENTS: Record<string, string> = {
+  bitki: "from-primary-50 to-cream-50 hover:from-primary-100 hover:to-cream-100",
+  gida: "from-cream-100 to-cream-200 hover:from-cream-200 hover:to-cream-300",
+  fidan: "from-earth-50 to-cream-100 hover:from-earth-100 hover:to-cream-200",
+};
+
+export default function CategoryShowcase({ categories }: CategoryShowcaseProps) {
   return (
     <section className="py-20 texture-paper" id="categories">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -34,14 +36,14 @@ export default function CategoryShowcase() {
 
         {/* Category Grid */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-          {CATEGORIES.map((category) => (
+          {categories.map((category) => (
             <Link
               key={category.slug}
               href={`/urunler?kategori=${category.slug}`}
               className={`
                 group relative flex flex-col items-center justify-center
                 p-8 sm:p-10 rounded-2xl border border-earth-200
-                bg-gradient-to-br ${categoryGradients[category.slug] || "from-earth-50 to-cream-100"}
+                bg-gradient-to-br ${CATEGORY_GRADIENTS[category.slug] || "from-earth-50 to-cream-100"}
                 transition-all duration-300
                 hover:shadow-card hover:border-earth-300 hover:-translate-y-1
               `}
@@ -49,7 +51,7 @@ export default function CategoryShowcase() {
             >
               {/* Icon */}
               <span className="text-4xl sm:text-5xl mb-4 group-hover:scale-110 transition-transform duration-300">
-                {categoryImages[category.slug]}
+                {CATEGORY_ICONS[category.slug] || "🌿"}
               </span>
 
               {/* Name */}

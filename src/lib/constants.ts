@@ -34,36 +34,6 @@ export const NAV_ITEMS: NavItem[] = [
 ];
 
 // ==========================================
-// Product Categories
-// ==========================================
-export const CATEGORIES = [
-  {
-    name: "Gıda Ürünleri",
-    slug: "gida",
-    description: "Doğal, katkısız, ev yapımı gıda ürünleri",
-    icon: "🫙",
-  },
-  {
-    name: "El İşi Ürünler",
-    slug: "el-isi",
-    description: "Geleneksel el sanatları ve el işi ürünler",
-    icon: "🧶",
-  },
-  {
-    name: "Doğal Ürünler",
-    slug: "dogal-urunler",
-    description: "Doğadan gelen saf ve doğal ürünler",
-    icon: "🌿",
-  },
-  {
-    name: "Hediyelik Ürünler",
-    slug: "hediyelik",
-    description: "Sevdiklerinize özel el yapımı hediyeler",
-    icon: "🎁",
-  },
-];
-
-// ==========================================
 // Order & Payment
 // ==========================================
 export const PAYMENT_METHODS = [

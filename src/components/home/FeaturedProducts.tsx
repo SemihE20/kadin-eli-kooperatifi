@@ -1,110 +1,12 @@
-"use client";
-
 import ProductGrid from "@/components/product/ProductGrid";
 import Link from "next/link";
 import type { Product } from "@/types";
 
-// Demo products for initial showcase
-const DEMO_PRODUCTS: Product[] = [
-  {
-    id: "1",
-    name: "Doğal Çam Balı (850g)",
-    slug: "dogal-cam-bali",
-    description: "Uludağ eteklerinden toplanan saf çam balı",
-    price: 450,
-    compare_at_price: 520,
-    category_id: "1",
-    category: "gida",
-    stock_quantity: 25,
-    is_active: true,
-    is_featured: true,
-    is_seasonal: false,
-    season_info: null,
-    usage_info: null,
-    storage_info: null,
-    weight: 850,
-    image_url: "/images/placeholder.jpg",
-    created_by: null,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-    category_rel: { id: "1", name: "Gıda Ürünleri", slug: "gida", description: null, image_url: null, sort_order: 1, created_at: "" },
-    images: [{ id: "1", product_id: "1", image_url: "/images/placeholder.jpg", alt_text: "Çam Balı", sort_order: 0, is_primary: true }],
-  },
-  {
-    id: "2",
-    name: "El Örgüsü Yün Şal",
-    slug: "el-orgusu-yun-sal",
-    description: "Doğal boyalı yünden el örgüsü şal",
-    price: 320,
-    compare_at_price: null,
-    category_id: "2",
-    category: "gida",
-    stock_quantity: 10,
-    is_active: true,
-    is_featured: true,
-    is_seasonal: false,
-    season_info: null,
-    usage_info: null,
-    storage_info: null,
-    weight: 200,
-    image_url: "/images/placeholder.jpg",
-    created_by: null,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-    category_rel: { id: "2", name: "El İşi Ürünler", slug: "el-isi", description: null, image_url: null, sort_order: 2, created_at: "" },
-    images: [{ id: "2", product_id: "2", image_url: "/images/placeholder.jpg", alt_text: "Yün Şal", sort_order: 0, is_primary: true }],
-  },
-  {
-    id: "3",
-    name: "Lavanta Sabunu (3'lü Set)",
-    slug: "lavanta-sabunu-set",
-    description: "El yapımı doğal lavanta sabunu seti",
-    price: 180,
-    compare_at_price: 220,
-    category_id: "3",
-    category: "bitki",
-    stock_quantity: 30,
-    is_active: true,
-    is_featured: true,
-    is_seasonal: false,
-    season_info: null,
-    usage_info: null,
-    storage_info: null,
-    weight: 300,
-    image_url: "/images/placeholder.jpg",
-    created_by: null,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-    category_rel: { id: "3", name: "Doğal Ürünler", slug: "dogal-urunler", description: null, image_url: null, sort_order: 3, created_at: "" },
-    images: [{ id: "3", product_id: "3", image_url: "/images/placeholder.jpg", alt_text: "Lavanta Sabunu", sort_order: 0, is_primary: true }],
-  },
-  {
-    id: "4",
-    name: "Doğal Kurutulmuş Çiçek Buketi",
-    slug: "kurutulmus-cicek-buketi",
-    description: "Ev dekorasyonu için doğal kurutulmuş çiçek buketi",
-    price: 250,
-    compare_at_price: null,
-    category_id: "4",
-    category: "bitki",
-    stock_quantity: 8,
-    is_active: true,
-    is_featured: true,
-    is_seasonal: true,
-    season_info: "İlkbahar - Yaz",
-    usage_info: null,
-    storage_info: null,
-    weight: 150,
-    image_url: "/images/placeholder.jpg",
-    created_by: null,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-    category_rel: { id: "4", name: "Hediyelik Ürünler", slug: "hediyelik", description: null, image_url: null, sort_order: 4, created_at: "" },
-    images: [{ id: "4", product_id: "4", image_url: "/images/placeholder.jpg", alt_text: "Çiçek Buketi", sort_order: 0, is_primary: true }],
-  },
-];
+interface FeaturedProductsProps {
+  products: Product[];
+}
 
-export default function FeaturedProducts() {
+export default function FeaturedProducts({ products }: FeaturedProductsProps) {
   return (
     <section className="py-20 bg-cream-50 texture-linen" id="featured-products">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -130,7 +32,7 @@ export default function FeaturedProducts() {
         </div>
 
         {/* Products */}
-        <ProductGrid products={DEMO_PRODUCTS} columns={4} />
+        <ProductGrid products={products} columns={4} />
       </div>
     </section>
   );

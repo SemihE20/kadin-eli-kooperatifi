@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import ProductGrid from "@/components/product/ProductGrid";
 import { formatPrice, isInSeasonNow } from "@/lib/utils";
 import type { Product } from "@/types";
@@ -25,12 +26,15 @@ const SEASON_FILTERS = [
 type SeasonFilter = (typeof SEASON_FILTERS)[number]["value"];
 
 export default function ProductsClient({ products }: ProductsClientProps) {
-  const [activeCategory, setActiveCategory] = useState("all");
+  const searchParams = useSearchParams();
+  const categoryFromUrl = searchParams.get("kategori");
+
+  const [activeCategory, setActiveCategory] = useState(categoryFromUrl || "all");
   const [searchQuery, setSearchQuery] = useState("");
   const [seasonFilter, setSeasonFilter] = useState<SeasonFilter>("all");
   const [minPriceInput, setMinPriceInput] = useState("");
   const [maxPriceInput, setMaxPriceInput] = useState("");
-  const [showFilters, setShowFilters] = useState(false);
+  const [showFilters, setShowFilters] = useState(Boolean(categoryFromUrl));
 
   const priceBounds = useMemo(() => {
     if (products.length === 0) return { min: 0, max: 1000 };

@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { createClient } from "@/lib/supabase/server";
 import PageHeader from "@/components/layout/PageHeader";
 import ProductsClient from "./_components/ProductsClient";
@@ -32,7 +33,9 @@ export default async function ProductsPage() {
 
       <section className="py-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <ProductsClient products={products} />
+          <Suspense fallback={null}>
+            <ProductsClient products={products} />
+          </Suspense>
         </div>
       </section>
     </>

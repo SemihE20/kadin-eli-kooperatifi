@@ -1,59 +1,26 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
 import PageHeader from "@/components/layout/PageHeader";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import Badge from "@/components/ui/Badge";
+import { createClient } from "@/lib/supabase/client";
 import { formatPrice, formatDate } from "@/lib/utils";
 import type { OrderStatus } from "@/types";
 
 type AccountTab = "profil" | "siparisler" | "favoriler" | "sifre";
 
-const DEMO_ORDERS = [
-  {
-    id: "o1",
-    order_number: "GK250615-1234",
-    date: "2025-06-15T10:30:00Z",
-    status: "teslim_edildi" as OrderStatus,
-    total: 625,
-    items: [
-      { name: "Doğal Çam Balı (850g)", quantity: 1, price: 450 },
-      { name: "Kekik Yağı (50ml)", quantity: 1, price: 120 },
-      { name: "Defne Yaprağı (100g)", quantity: 1, price: 55 },
-    ],
-  },
-  {
-    id: "o2",
-    order_number: "GK250520-5678",
-    date: "2025-05-20T14:00:00Z",
-    status: "kargoda" as OrderStatus,
-    total: 330,
-    items: [
-      { name: "Lavanta Sabunu (3'lü Set)", quantity: 1, price: 180 },
-      { name: "Ev Yapımı Erişte (500g)", quantity: 1, price: 85 },
-      { name: "Defne Yaprağı (100g)", quantity: 1, price: 45 },
-    ],
-  },
-  {
-    id: "o3",
-    order_number: "GK250410-9012",
-    date: "2025-04-10T09:15:00Z",
-    status: "teslim_edildi" as OrderStatus,
-    total: 250,
-    items: [
-      { name: "Zeytin Fidanı", quantity: 1, price: 250 },
-    ],
-  },
-];
-
-const DEMO_FAVORITES = [
-  { id: "1", name: "Doğal Çam Balı (850g)", price: 450, slug: "dogal-cam-bali", image: "/images/placeholder.jpg" },
-  { id: "3", name: "Lavanta Sabunu (3'lü Set)", price: 180, slug: "lavanta-sabunu-set", image: "/images/placeholder.jpg" },
-  { id: "5", name: "Zeytin Fidanı", price: 250, slug: "zeytin-fidani", image: "/images/placeholder.jpg" },
-];
+interface OrderRow {
+  id: string;
+  order_number: string;
+  status: OrderStatus;
+  total: number;
+  created_at: string;
+  items: { quantity: number; unit_price: number; product: { name: string } | null }[];
+}
 
 const STATUS_CONFIG: Record<OrderStatus, { label: string; variant: "success" | "warning" | "danger" | "default" | "discount" }> = {
   beklemede: { label: "Beklemede", variant: "warning" },
@@ -64,21 +31,68 @@ const STATUS_CONFIG: Record<OrderStatus, { label: string; variant: "success" | "
 };
 
 export default function AccountPage() {
+  const router = useRouter();
+  const supabase = createClient();
+
   const [activeTab, setActiveTab] = useState<AccountTab>("profil");
+  const [loading, setLoading] = useState(true);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [email, setEmail] = useState("");
   const [profileForm, setProfileForm] = useState({
-    fullName: "Ayşe Yılmaz",
-    email: "ayse@ornek.com",
-    phone: "05551234567",
-    city: "Bursa",
-    district: "Mudanya",
-    address: "Gözler Mahallesi, Örnek Sok. No:12",
+    fullName: "",
+    phone: "",
+    city: "",
+    district: "",
+    address: "",
   });
-  const [passwordForm, setPasswordForm] = useState({
-    currentPassword: "",
-    newPassword: "",
-    confirmPassword: "",
-  });
+  const [profileSaving, setProfileSaving] = useState(false);
+  const [profileMessage, setProfileMessage] = useState<string | null>(null);
+
+  const [passwordForm, setPasswordForm] = useState({ newPassword: "", confirmPassword: "" });
+  const [passwordSaving, setPasswordSaving] = useState(false);
+  const [passwordMessage, setPasswordMessage] = useState<string | null>(null);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+
+  const [orders, setOrders] = useState<OrderRow[]>([]);
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
+
+  const fetchAccount = useCallback(async () => {
+    setLoading(true);
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      setLoading(false);
+      return;
+    }
+
+    setUserId(user.id);
+    setEmail(user.email ?? "");
+
+    const [{ data: profile }, { data: orderData }] = await Promise.all([
+      supabase.from("profiles").select("full_name, phone, address").eq("id", user.id).single(),
+      supabase
+        .from("orders")
+        .select("id, order_number, status, total, created_at, items:order_items(quantity, unit_price, product:products(name))")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false }),
+    ]);
+
+    setProfileForm({
+      fullName: profile?.full_name ?? "",
+      phone: profile?.phone ?? "",
+      city: profile?.address?.city ?? "",
+      district: profile?.address?.district ?? "",
+      address: profile?.address?.address ?? "",
+    });
+    setOrders((orderData as unknown as OrderRow[]) ?? []);
+    setLoading(false);
+  }, [supabase]);
+
+  useEffect(() => {
+    fetchAccount();
+  }, [fetchAccount]);
 
   const handleProfileChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setProfileForm({ ...profileForm, [e.target.name]: e.target.value });
@@ -87,6 +101,63 @@ export default function AccountPage() {
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPasswordForm({ ...passwordForm, [e.target.name]: e.target.value });
   };
+
+  async function handleProfileSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!userId) return;
+    setProfileSaving(true);
+    setProfileMessage(null);
+
+    const { error } = await supabase
+      .from("profiles")
+      .update({
+        full_name: profileForm.fullName,
+        phone: profileForm.phone,
+        address: {
+          full_name: profileForm.fullName,
+          phone: profileForm.phone,
+          city: profileForm.city,
+          district: profileForm.district,
+          address: profileForm.address,
+        },
+      })
+      .eq("id", userId);
+
+    setProfileMessage(error ? error.message : "Profil bilgileriniz güncellendi.");
+    setProfileSaving(false);
+  }
+
+  async function handlePasswordSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setPasswordError(null);
+    setPasswordMessage(null);
+
+    if (passwordForm.newPassword.length < 6) {
+      setPasswordError("Şifre en az 6 karakter olmalı.");
+      return;
+    }
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+      setPasswordError("Şifreler eşleşmiyor.");
+      return;
+    }
+
+    setPasswordSaving(true);
+    const { error } = await supabase.auth.updateUser({ password: passwordForm.newPassword });
+
+    if (error) {
+      setPasswordError(error.message);
+    } else {
+      setPasswordMessage("Şifreniz güncellendi.");
+      setPasswordForm({ newPassword: "", confirmPassword: "" });
+    }
+    setPasswordSaving(false);
+  }
+
+  async function handleSignOut() {
+    await supabase.auth.signOut();
+    router.push("/");
+    router.refresh();
+  }
 
   const TABS: { key: AccountTab; label: string; icon: string }[] = [
     { key: "profil", label: "Profilim", icon: "👤" },
@@ -116,8 +187,10 @@ export default function AccountPage() {
                   <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mb-3">
                     <span className="text-2xl">👤</span>
                   </div>
-                  <p className="font-heading text-sm font-bold text-foreground">{profileForm.fullName}</p>
-                  <p className="text-xs text-muted mt-0.5">{profileForm.email}</p>
+                  <p className="font-heading text-sm font-bold text-foreground">
+                    {profileForm.fullName || "—"}
+                  </p>
+                  <p className="text-xs text-muted mt-0.5">{email}</p>
                 </div>
               </div>
 
@@ -136,7 +209,10 @@ export default function AccountPage() {
                     {tab.label}
                   </button>
                 ))}
-                <button className="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-500 hover:bg-red-50 transition-colors cursor-pointer text-left border-t border-earth-200">
+                <button
+                  onClick={handleSignOut}
+                  className="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-500 hover:bg-red-50 transition-colors cursor-pointer text-left border-t border-earth-200"
+                >
                   <span>🚪</span>
                   Çıkış Yap
                 </button>
@@ -145,148 +221,151 @@ export default function AccountPage() {
 
             {/* Content */}
             <div className="lg:col-span-3">
-              {/* Profile Tab */}
-              {activeTab === "profil" && (
-                <div className="bg-card rounded-2xl border border-earth-200 p-6">
-                  <h2 className="font-heading text-lg font-bold text-foreground mb-6">Profil Bilgileri</h2>
-                  <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <Input label="Ad Soyad" name="fullName" value={profileForm.fullName} onChange={handleProfileChange} />
-                      <Input label="E-posta" name="email" type="email" value={profileForm.email} onChange={handleProfileChange} />
-                      <Input label="Telefon" name="phone" type="tel" value={profileForm.phone} onChange={handleProfileChange} />
-                      <Input label="İl" name="city" value={profileForm.city} onChange={handleProfileChange} />
-                      <Input label="İlçe" name="district" value={profileForm.district} onChange={handleProfileChange} />
-                      <div className="sm:col-span-2">
-                        <label className="text-sm font-medium text-foreground block mb-1.5">Adres</label>
-                        <textarea
-                          name="address"
-                          rows={2}
-                          value={profileForm.address}
-                          onChange={handleProfileChange}
-                          className="w-full px-4 py-2.5 rounded-xl border border-earth-200 text-sm bg-white placeholder:text-muted hover:border-primary-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 focus:outline-none transition-all resize-none"
-                        />
-                      </div>
-                    </div>
-                    <div className="pt-2">
-                      <Button type="submit">Kaydet</Button>
-                    </div>
-                  </form>
+              {loading ? (
+                <div className="bg-card rounded-2xl border border-earth-200 p-6 text-center text-sm text-muted">
+                  Yükleniyor...
                 </div>
-              )}
-
-              {/* Orders Tab */}
-              {activeTab === "siparisler" && (
-                <div className="space-y-4">
-                  <h2 className="font-heading text-lg font-bold text-foreground">Sipariş Geçmişim</h2>
-                  {DEMO_ORDERS.map((order) => (
-                    <div key={order.id} className="bg-card rounded-2xl border border-earth-200 overflow-hidden">
-                      <div
-                        className="flex items-center justify-between p-5 cursor-pointer hover:bg-cream-50 transition-colors"
-                        onClick={() => setExpandedOrder(expandedOrder === order.id ? null : order.id)}
-                      >
-                        <div className="flex items-center gap-4">
-                          <div>
-                            <p className="text-sm font-semibold text-foreground">{order.order_number}</p>
-                            <p className="text-xs text-muted">{formatDate(order.date)}</p>
+              ) : (
+                <>
+                  {/* Profile Tab */}
+                  {activeTab === "profil" && (
+                    <div className="bg-card rounded-2xl border border-earth-200 p-6">
+                      <h2 className="font-heading text-lg font-bold text-foreground mb-6">Profil Bilgileri</h2>
+                      <form className="space-y-4" onSubmit={handleProfileSubmit}>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <Input label="Ad Soyad" name="fullName" value={profileForm.fullName} onChange={handleProfileChange} />
+                          <Input label="E-posta" name="email" type="email" value={email} disabled helperText="E-posta adresi değiştirilemez." />
+                          <Input label="Telefon" name="phone" type="tel" value={profileForm.phone} onChange={handleProfileChange} />
+                          <Input label="İl" name="city" value={profileForm.city} onChange={handleProfileChange} />
+                          <Input label="İlçe" name="district" value={profileForm.district} onChange={handleProfileChange} />
+                          <div className="sm:col-span-2">
+                            <label className="text-sm font-medium text-foreground block mb-1.5">Adres</label>
+                            <textarea
+                              name="address"
+                              rows={2}
+                              value={profileForm.address}
+                              onChange={handleProfileChange}
+                              className="w-full px-4 py-2.5 rounded-xl border border-earth-200 text-sm bg-white placeholder:text-muted hover:border-primary-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 focus:outline-none transition-all resize-none"
+                            />
                           </div>
                         </div>
-                        <div className="flex items-center gap-3">
-                          <Badge variant={STATUS_CONFIG[order.status].variant}>
-                            {STATUS_CONFIG[order.status].label}
-                          </Badge>
-                          <span className="text-sm font-bold text-primary-700">{formatPrice(order.total)}</span>
-                          <svg
-                            className={`w-4 h-4 text-muted transition-transform ${expandedOrder === order.id ? "rotate-180" : ""}`}
-                            fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                          >
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 9l-7 7-7-7" />
-                          </svg>
+                        {profileMessage && (
+                          <p className="text-xs text-primary-700 bg-primary-50 rounded-xl px-3 py-2">{profileMessage}</p>
+                        )}
+                        <div className="pt-2">
+                          <Button type="submit" isLoading={profileSaving}>Kaydet</Button>
                         </div>
-                      </div>
-
-                      {expandedOrder === order.id && (
-                        <div className="border-t border-earth-200 p-5">
-                          <div className="space-y-2">
-                            {order.items.map((item, i) => (
-                              <div key={i} className="flex justify-between text-sm">
-                                <span className="text-muted">{item.name} × {item.quantity}</span>
-                                <span className="font-medium">{formatPrice(item.price)}</span>
-                              </div>
-                            ))}
-                          </div>
-                          <div className="border-t border-earth-100 mt-3 pt-3 flex justify-between text-sm font-bold">
-                            <span>Toplam</span>
-                            <span className="text-primary-700">{formatPrice(order.total)}</span>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {/* Favorites Tab */}
-              {activeTab === "favoriler" && (
-                <div>
-                  <h2 className="font-heading text-lg font-bold text-foreground mb-6">Favorilerim</h2>
-                  {DEMO_FAVORITES.length === 0 ? (
-                    <div className="text-center py-12 bg-card rounded-2xl border border-earth-200">
-                      <span className="text-4xl mb-3 block">❤️</span>
-                      <p className="text-sm text-muted">Henüz favori ürününüz yok.</p>
-                      <Link href="/urunler" className="text-xs text-primary-700 font-medium hover:underline mt-2 block">Ürünleri Keşfet →</Link>
-                    </div>
-                  ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                      {DEMO_FAVORITES.map((fav) => (
-                        <Link key={fav.id} href={`/urunler/${fav.slug}`} className="group bg-card rounded-2xl border border-earth-200 overflow-hidden hover:shadow-card transition-all">
-                          <div className="relative h-36 bg-cream-100">
-                            <Image src={fav.image} alt={fav.name} fill className="object-cover group-hover:scale-105 transition-transform duration-300" />
-                          </div>
-                          <div className="p-3">
-                            <p className="text-sm font-medium text-foreground line-clamp-2 mb-1">{fav.name}</p>
-                            <p className="text-sm font-bold text-primary-700">{formatPrice(fav.price)}</p>
-                          </div>
-                        </Link>
-                      ))}
+                      </form>
                     </div>
                   )}
-                </div>
-              )}
 
-              {/* Password Tab */}
-              {activeTab === "sifre" && (
-                <div className="bg-card rounded-2xl border border-earth-200 p-6">
-                  <h2 className="font-heading text-lg font-bold text-foreground mb-6">Şifre Değiştir</h2>
-                  <form className="space-y-4 max-w-sm" onSubmit={(e) => e.preventDefault()}>
-                    <Input
-                      label="Mevcut Şifre"
-                      name="currentPassword"
-                      type="password"
-                      placeholder="••••••••"
-                      value={passwordForm.currentPassword}
-                      onChange={handlePasswordChange}
-                    />
-                    <Input
-                      label="Yeni Şifre"
-                      name="newPassword"
-                      type="password"
-                      placeholder="En az 6 karakter"
-                      value={passwordForm.newPassword}
-                      onChange={handlePasswordChange}
-                    />
-                    <Input
-                      label="Yeni Şifre Tekrar"
-                      name="confirmPassword"
-                      type="password"
-                      placeholder="Yeni şifrenizi tekrar girin"
-                      value={passwordForm.confirmPassword}
-                      onChange={handlePasswordChange}
-                    />
-                    <div className="pt-2">
-                      <Button type="submit">Şifremi Güncelle</Button>
+                  {/* Orders Tab */}
+                  {activeTab === "siparisler" && (
+                    <div className="space-y-4">
+                      <h2 className="font-heading text-lg font-bold text-foreground">Sipariş Geçmişim</h2>
+                      {orders.length === 0 ? (
+                        <div className="text-center py-12 bg-card rounded-2xl border border-earth-200">
+                          <span className="text-4xl mb-3 block">📦</span>
+                          <p className="text-sm text-muted">Henüz siparişiniz yok.</p>
+                          <Link href="/urunler" className="text-xs text-primary-700 font-medium hover:underline mt-2 block">Ürünleri Keşfet →</Link>
+                        </div>
+                      ) : (
+                        orders.map((order) => (
+                          <div key={order.id} className="bg-card rounded-2xl border border-earth-200 overflow-hidden">
+                            <div
+                              className="flex items-center justify-between p-5 cursor-pointer hover:bg-cream-50 transition-colors"
+                              onClick={() => setExpandedOrder(expandedOrder === order.id ? null : order.id)}
+                            >
+                              <div className="flex items-center gap-4">
+                                <div>
+                                  <p className="text-sm font-semibold text-foreground">{order.order_number}</p>
+                                  <p className="text-xs text-muted">{formatDate(order.created_at)}</p>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-3">
+                                <Badge variant={STATUS_CONFIG[order.status].variant}>
+                                  {STATUS_CONFIG[order.status].label}
+                                </Badge>
+                                <span className="text-sm font-bold text-primary-700">{formatPrice(order.total)}</span>
+                                <svg
+                                  className={`w-4 h-4 text-muted transition-transform ${expandedOrder === order.id ? "rotate-180" : ""}`}
+                                  fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                >
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 9l-7 7-7-7" />
+                                </svg>
+                              </div>
+                            </div>
+
+                            {expandedOrder === order.id && (
+                              <div className="border-t border-earth-200 p-5">
+                                <div className="space-y-2">
+                                  {order.items.map((item, i) => (
+                                    <div key={i} className="flex justify-between text-sm">
+                                      <span className="text-muted">
+                                        {item.product?.name ?? "Ürün"} × {item.quantity}
+                                      </span>
+                                      <span className="font-medium">{formatPrice(item.unit_price * item.quantity)}</span>
+                                    </div>
+                                  ))}
+                                </div>
+                                <div className="border-t border-earth-100 mt-3 pt-3 flex justify-between text-sm font-bold">
+                                  <span>Toplam</span>
+                                  <span className="text-primary-700">{formatPrice(order.total)}</span>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        ))
+                      )}
                     </div>
-                  </form>
-                </div>
+                  )}
+
+                  {/* Favorites Tab */}
+                  {activeTab === "favoriler" && (
+                    <div>
+                      <h2 className="font-heading text-lg font-bold text-foreground mb-6">Favorilerim</h2>
+                      <div className="text-center py-12 bg-card rounded-2xl border border-earth-200">
+                        <span className="text-4xl mb-3 block">❤️</span>
+                        <p className="text-sm text-muted">Henüz favori ürününüz yok.</p>
+                        <Link href="/urunler" className="text-xs text-primary-700 font-medium hover:underline mt-2 block">Ürünleri Keşfet →</Link>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Password Tab */}
+                  {activeTab === "sifre" && (
+                    <div className="bg-card rounded-2xl border border-earth-200 p-6">
+                      <h2 className="font-heading text-lg font-bold text-foreground mb-6">Şifre Değiştir</h2>
+                      <form className="space-y-4 max-w-sm" onSubmit={handlePasswordSubmit}>
+                        <Input
+                          label="Yeni Şifre"
+                          name="newPassword"
+                          type="password"
+                          placeholder="En az 6 karakter"
+                          value={passwordForm.newPassword}
+                          onChange={handlePasswordChange}
+                        />
+                        <Input
+                          label="Yeni Şifre Tekrar"
+                          name="confirmPassword"
+                          type="password"
+                          placeholder="Yeni şifrenizi tekrar girin"
+                          value={passwordForm.confirmPassword}
+                          onChange={handlePasswordChange}
+                        />
+                        {passwordError && (
+                          <p className="text-xs text-red-600 bg-red-50 rounded-xl px-3 py-2">{passwordError}</p>
+                        )}
+                        {passwordMessage && (
+                          <p className="text-xs text-primary-700 bg-primary-50 rounded-xl px-3 py-2">{passwordMessage}</p>
+                        )}
+                        <div className="pt-2">
+                          <Button type="submit" isLoading={passwordSaving}>Şifremi Güncelle</Button>
+                        </div>
+                      </form>
+                    </div>
+                  )}
+                </>
               )}
             </div>
           </div>
